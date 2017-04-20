@@ -1,10 +1,11 @@
 <html>
   <head>
-    <script src="./screen.js"></script>
+    <script src="./data/screen.js"></script>
   </head>
   <body style="margin:0; padding:0; background:#f0f0f0">  
 		<center>
 			show overflow : <input type="checkbox" id="h1" checked><br>
+			speed : <input type="number" value="5" id="h4"><br>
 			img0 : <span id="h2">0</span> degres<br>
 			img1 : <span id="h3">90</span> degres<br>
 		</center>
@@ -86,7 +87,8 @@
 	 }
 	  
 	 var hdl2 = document.getElementById("h2"),
-		 hdl3 = document.getElementById("h3");
+		 hdl3 = document.getElementById("h3"),
+		 hdl4 = document.getElementById("h4");
 	 var img0 = img( 64,34,0 ),
 	     img1 = img( 64,34,90);
 	
@@ -100,8 +102,8 @@
 		
 		gui.resetScreen( 0x00FFFFFF );
 		
-		hdl2.innerHTML = ( img0.angle = ( img0.angle += 5 ) %360 );
-		hdl3.innerHTML = ( img1.angle = ( img1.angle -= 5 ) %360 );
+		hdl2.innerHTML = ( img0.angle = ( img0.angle += parseInt( hdl4.value ) ) %360 );
+		hdl3.innerHTML = ( img1.angle = ( img1.angle -= parseInt( hdl4.value ) ) %360 );
 		
 		
 		rotate( img0, 255, 255 );
