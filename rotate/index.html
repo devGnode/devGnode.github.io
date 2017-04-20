@@ -85,12 +85,15 @@
 	
 	  img1.__code =  img0.__code = img0.__code.split(',');
 	  rotate( img0, 255, 255 );
+	  otate( img1, 512, 255 );
 	  gui.refresh( );
 	  
-	/*setInterval( function(){
+	setInterval( function(){
 		
 		gui.resetScreen( 0x00FFFFFF );
 		
+		img0.angle = ( img0.angle += 1 )%360;
+		img0.angle = ( img0.angle -= 1 )%360;
 		rotate( img0, 255, 255 );
 		rotate( img1, 512, 255 );
 		
@@ -98,7 +101,7 @@
 		
 		gui.refresh( );
 	
-	} ,60 );*/
+	} ,60 );
     
   </script>
   
