@@ -1,1 +1,1652 @@
+<html>
+	<head>
+	
+		<script src="./data/screen.js" ></script>
+		
+		<script src="./data/p_m_car.js" ></script>
+		
+		<script src="./data/gnode.js" > </script>
+	</head>
+	
+	<body>
+	<div>
+		car position : 
+		<table>
+			<tr><td>screenX </td><td> <input type="text" id="sx" > </td><td>screenY </td><td> <input type="text" id="sy" > </td></tr>
+			<tr><td>angle  </td><td> <input type="text" id="angle" > </td><td>speed  </td><td> <input type="text" id="speed" > </td></tr>
+		</table>
+		<select id="caropts"><option value="-1">default</option></select><br>
+		<canvas id="screen" style="border:1px solid #000;"></canvas>
+	</body>
+	<script>	
+(function( self ){
+	var exportable 		 = {},
+		notexportable    = {},
+		 i = 0;
+	
+	function throwError( e ){
+		console.log( 
+		e//str_format.apply( this, e )
+		);
+	}
+	
+	function __get( a, b ){
+		var tmp, dep, i = 0, 
+			__exportable,
+			argv = [];
+	
+		if( ( tmp = exportable[ a ] ) ){
+			if( tmp.mount && typeof tmp.mount === "function" ){
+				
+				try{
+					while( ( dep = tmp.dependency[ i ] )  ){
+						
+						argv.push(
+							dep == "export" ? (__exportable = {})  :
+							__get.call( 
+								null,
+								dep,
+								tmp
+							)
+						);
+						i++;
+					}				
+				}catch(e){
+					throwError(
+						["Denepence %c don't existing. parent mdoule : %c",
+						dep,
+						btoa( tmp.module )
+						]
+					);
+				}
+				tmp.returned = ( tmp.returned = tmp.mount.apply( 
+					 tmp._w_,	// _w_
+					 argv
+					) ) === undefined || tmp.returned === null ? __exportable : tmp.returned;
+				delete tmp.mount;
+				
+			}else if( tmp.mount ){
+				tmp.returned = tmp.mount;
+				delete tmp.mount;
+			}else;
+			
+		return tmp.returned;
+		}else{
+		throwError(
+			["Warning module :: %c :: wanted did not defined from %c",
+			a,
+			b ? b.guid : "unknow"
+			]
+			);
+		}
+	return null;
+	}
+	/* import new*/
+	function __add( a, b, c, d  ){
+		var ptr;
+		
+		if( !exportable[ a ] ){
+			
+			/*import module*/
+			exportable[ a ] = ({
+			
+				module 	   : "__module__" + btoa( a ),
+				mount  	   : c,
+				dependency : b,
+				// proc id
+				guid	   : btoa( "__module["+i+"]__" + btoa( a ) ),
+				_w_		   : {},
+				
+			});
+			
+			i++;
+		}else{
+			throwError(
+			["Warning %c created is a duplicate module. enum dependency : [ %c ]",
+			"__module__" + btoa( a ) +"/"+ i,
+			b.join(", ")
+			]
+			);
+		}
+	return !0;
+	}
+	
+	function inmodule( a, b ){ exportable[ a ] = { module: "__module__"+ btoa( a ), returned: b, access: 3 }; }
+	
+	// import
+	function __import( a,b,c,d ){
+		return __add( a, ["def","req","export"].concat( b ), c, d );
+	}
+	function __req( a ){
+	return  __get( a );
+	}
+	
+	inmodule("def", __import );
+	inmodule("req", __req );
+	
+	/**/
+	self.define = self._import = __import;
+	self.req    = self._export = __req;
+	
+})( self === window ? self : window );
 
+/*
+*
+*/
+Array.prototype.sum = function( ){
+	var i =  sum = 0,
+		len = this.length;
+	try{
+		for(; i < len; i++ )
+		sum += typeof parseInt( this[ i ] ) === "number" ?
+		parseInt( this[ i ] )  : 0;;
+	}catch(e){};
+return sum;
+};
+
+function LittleEndian( _32b, size ){
+return size == 8  ? _32b&0xff :
+	   size == 16 ? ( _32b&0xff ) << 8 | ( ( _32b >> 8 )&0xff )&0xffff :
+	   size == 32 ? ( (_32b&0xff ) << 24 | ( ( _32b >> 8 )&0xff ) << 16 | ( ( _32b >> 16 )&0xff ) << 8 | (_32b>>24)&0xff )&0xffffffff :
+	   LittleEndian( _32b, 32 );
+}
+
+var BYTE  = uint8  = 0x01,
+	WORD  = uint16 = 0x02,
+	DWORD = uint32 = 0x04,
+	QWORD = uint64 = 0x08,
+	int8  = 0x11,
+	int16 = 0x12,
+	int32 = 0x14,
+	int64 = 0x18;
+	
+function _sizeof( $__number__ ){
+return $__number__ <= 0xFF ? BYTE : 
+	   $__number__ > 0xFF && $__number__ <= 0xFFFF ? WORD :
+	   $__number__ > 0xFFFF && $__number__ <= 0xFFFFFFFF ? DWORD :
+	   $__number__ > 0xFFFFFFFF && $__number__ <= 0xFFFFFFFFFFFFFFFF ? QWORD
+	   : -1;
+}
+
+
+define("error",[],function(a,b,c ){
+return{
+	astr:["overflow memory","Critical error report :","BAD TYPE *&rarr;"],
+	errorno:0,
+	error:!1,
+	str  :"",
+	getStrError:function(){
+		return ( this.error != 0 ? this.astr[ this.errorno-1 ]+
+			   " "+this.str : "0" );
+	},
+};
+});
+
+define("struct",["error"],function(a,b,c, error ){
+
+return{
+		
+	// buffer 
+	// offset 
+	// ulen 1, 2, 4, 8, len 17, 18, 20, 24
+	// max 32 bits
+	//@return integer
+	__chr2int:function( buffer, off, len ){
+		var buffer = ( buffer || "" ),
+			rol	   = len*8, ret = signed = 0,
+			end	   = off+(len&0x0f);
+			
+			signed = (len&0x10) >> 4;
+		try{
+			for(; off < end; off++ ){
+				
+				buffer[ off ] ?
+					// review ret |= method
+					( ret += ( 1 << (rol-=8) ) * buffer.charCodeAt( off ) )
+					// nop
+					: 0; 
+			}
+		}catch(e){
+			error.errorno = 0x02;
+			error.str	  = e.stack;
+			return !( error.error = 1 )		
+		}
+	return signed ? ( ret << 24 ) >> 24 : ret;
+	},   
+	
+	// int2chr
+	// max uint32
+	__int2chr:function( val, sizeof ){
+		var __trame__ = "",
+			signed    = 0,
+			ror		  =  ( !sizeof ?
+						_sizeof( val ) : sizeof ) * 8;
+		try{
+			if( val > Math.pow( 2 , ror )  ){
+				error.errorno = 0x01; 
+				error.str	= " use only "+(ror/8)+" byte(s) in memory ";
+				return !( error.error = 1 );
+			}
+			while( ror > 0 ){
+				__trame__ += String.fromCharCode(
+					( val >> (ror-=0x08) )&0xff
+				);	
+			}
+		}catch(e){
+			error.errorno = 0x02;
+			error.str 	 = e.stack; 
+			return !( error.error = 1 );
+		}
+	return __trame__;
+	},
+	// 
+	// buffer = > "ÿ", off => 0, size => { fb:3, sb:1, tb:2, ef:2 } or
+	// buffer => "oÿ", off => 1, size =>....
+	// @return { fb:7, sb:1, tb:3, eb:3 } 
+	__chr2bit:function( buffer, off, size ){
+		var len = i = rol = 0, tmp,
+			sizeof = [], data;
+			
+			size = ( size || {} );
+			try{
+				// look for size of 
+				// bit element
+				for( tmp in size ){
+					sizeof.push(
+						size[ tmp ]
+					);
+					len += size[ tmp ];
+				}
+				
+				// get buffer 
+				len += (len%2);
+				data = this.__chr2int( 
+					buffer.substr( 
+						off,
+						 parseInt( len/8 ) == 0 ? 1 : parseInt( len/8 )
+					),
+					0, parseInt( len/8 ) == 0 ? 1 : parseInt( len/8 )
+				);
+				// parse
+				for( tmp in size){
+				
+					rol = sizeof.slice( i+1 )
+								.sum( );
+					size[ tmp ] = ( data >> rol )&(Math.pow( 2, size[ tmp ] )-1);
+					i++;
+				}
+			len = i = tmp = sizeof = data = null;
+			}catch(e){
+				error.errorno = 0x02;
+				error.str	  = e.stack;
+			return !( error.error   = 1 );
+			}
+			
+	return size;
+	},
+	// 
+	// val => { fb:7, sb:1, tb:3, eb:3 } , size => { fb:3, sb:1, tb:2, ef:2 }
+	// @return "ÿ" 
+	__bit2chr:function( val, size ){
+		var __trame__ = "",tmp,
+		n = ntmp = 0;
+		try{
+			for( tmp in size ){
+			
+				if( typeof val[ tmp ] === "string" ){
+					error.errorno = 0x03
+					error.str     = tmp+" invalid assignment from integer variable";
+					error.error   = 1;
+					break;
+				}
+				// check if exist
+				val[ tmp ] = val[ tmp ] ?
+				val[ tmp ] : 0;
+				
+				if( val[ tmp ] >= 0 && val[ tmp ] < Math.pow( 2, ( size[ tmp ] ) ) ){
+					
+					// overflow int 32 bit QWORD not supported
+					//alert( Math.pow( 2, ntmp += size[ tmp ] ) +" "+ Math.pow(2, DWORD * 8));
+					if( Math.pow( 2, ( ntmp += size[ tmp ] ) ) >= Math.pow( 2, DWORD * 8 ) ){
+					
+						__trame__ += this.__int2chr(
+							n,
+							DWORD
+						);
+						ntmp = n = 0;
+					}
+					
+					n = ( n > 0 ) ? ( n << size[ tmp ] ) | val[ tmp ] : val[ tmp ];
+				}else{
+					n = 0;
+					error.errorno = 0x01;
+					error.str	  = "use only "+size[ tmp ]+" bit(s) in memory ";
+					error.error   = 1;
+					break;
+				}
+				
+			}
+			__trame__  += this.__int2chr( 
+				n
+			);
+		}catch(e){
+			n = 0;
+			error.errorno = 0x02;
+			error.str    = e.stack;
+			return !( error.error = 1 );
+		}
+	return __trame__;
+	},
+	
+	// buffer data
+	// struct
+	// offet of starting
+	buffer2struct:function( buffer, struct, off ){
+		var off = ( off || 0 ),
+			buffer = ( buffer ||"" ),
+			toff,tmp, i,j;
+		try{
+			for( tmp in struct ){
+				
+				toff = 0;
+				
+				typeof struct[ tmp ] === "number" ?
+					(struct[ tmp ] = this.__chr2int(
+						buffer,			// buffer
+						off,		   // offset
+						( toff += struct[ tmp ] ) // len
+					), toff &=0x0f ) : void 0;
+				
+				
+				if( typeof struct[ tmp ] == "object"  &&
+					struct[ tmp ] !== null ){
+					
+					toff = this.sizeof( struct[ tmp ], 1 );
+					struct[ tmp ] = this.__chr2bit( 
+						buffer,		// buffer
+						off,		// offset
+						struct[ tmp ]	// void * struct
+					);
+				}
+				
+				// const char 
+				if( typeof struct[ tmp ] === "string" ){
+					var a,b,_off=0;
+					
+					b = parseInt( struct[ tmp ] );
+					i = off, j = isNaN( b ) ? -1 : 0,
+					a  = !isNaN( b ) ? b : 0 ;
+					struct[ tmp ] = "";
+					
+					while( buffer[ i ] ){
+						
+						if( ( buffer[i].charCodeAt(0) == 0x00 && j == -1 ) || ( j >= a ) ){
+							_off = buffer[i].charCodeAt(0) == 0x00 ? 1 : 0;
+							break;
+						}
+						struct[ tmp ] += buffer[ i ];
+						j > -1 ? (j+=1) : void 0;
+						i++;
+					}
+					toff = struct[ tmp ].length+_off;
+				}
+				
+				if( error.error ){
+					struct = false;
+					break;
+				}
+				
+				off += toff;
+			}
+		}catch(e){
+			error.errorno = 0x02;
+			error.str = e.stack;
+		return !( error.error = 1 );
+		}
+		
+	return struct;
+	},
+	
+	// _s : Structure complete
+	// _ptrs : void * Structure 
+	// buffer
+	struct2buffer:function( _s, _ptrs, buffer ){
+		var tmp,
+		buffer = ( buffer || "" );
+		try{
+			for( tmp in _s ){
+				
+				typeof _s[ tmp ] === "number" ?
+				buffer += this.__int2chr( 
+					_s[tmp],
+					_ptrs[ tmp ]
+				) : void 0;
+				
+				typeof _s[ tmp ] === "string" ?
+				buffer += _s[ tmp ] : void 0;
+				
+				typeof _s[ tmp ] === "object" &&
+				_s[ tmp ] !== null ?
+				buffer += this.__bit2chr( 
+					_s[tmp],
+					_ptrs[tmp]
+				) : void 0;
+				
+				if( error.error ){
+					error.errorno == 1 || error.errorno == 3 ?
+					error.str = "*->"+tmp+" "+error.str
+					: void 0; 
+					buffer = false;
+					break;
+				}
+			}
+		}catch(e){
+			 error.errorno = 0x02;
+			 error.str 	 = e.stack; 
+			return !( error.error = 1 );
+		}
+	
+	return buffer;
+	},
+	
+	// void struct
+	// sizeof struct
+	sizeof:function( struct, deep ){
+		var tmp,size = 0;
+		try{
+			for( tmp in struct ){
+			
+				size += typeof struct[ tmp ] === "object" ?
+					this.sizeof(
+						struct[ tmp ],
+						1
+					) : 
+					typeof struct[ tmp ] === "number" ?
+						struct[ tmp ] : 
+						!isNaN( parseInt( struct[ tmp ] ) ) ? parseInt( struct[ tmp ] )
+					  : 0;			
+			}
+		}catch(e){};
+	return ( deep ? size > 8 ? size/8 : 1 : size );
+	},
+	};
+});
+
+
+var struct = req("struct");
+
+// install 
+// load data
+function s_m_car(){
+//structure car
+return {
+		name:"",
+		_t:{ 
+			rsv:5,
+			locality: 3
+		},
+		type:BYTE,
+		x:WORD,
+		y:WORD,	
+		__code:"",
+	};
+}
+var deflate = {
+	// car dat
+	car: function( A_m_car  ){
+		var offset = this.len,
+			i = j = 0,c = [];
+			
+		for( i in A_m_car ){
+		this[ offset ] = struct.buffer2struct(
+				atob( A_m_car[i] ),
+				s_m_car( )
+		);
+		
+		this[ offset ].__code = atob(
+			this[ offset ].__code
+			);
+		
+		for( j=0; j < this[ offset ].__code.length; j+=4 ){
+			c.push(
+			struct.__chr2int( this[ offset ].__code, j,  4 )
+			);
+		}
+		this[ offset ].angle = 0;
+		this[ offset ].__code = c;
+		
+		// ******************DEBUG************************
+		gnode("#caropts").app(
+			gnode("<option>").made({
+				value: offset,	
+				innerHTML: this[ offset ].name
+			}).node
+		);
+		// **********************************************
+		
+		/*push locality*/
+		//
+		this[ offset ]._t.locality&0x01 ? 
+		locality[ this[ offset ]._t.locality&0x01 -1 ].push(
+			offset
+		) : void 0;
+		this[ offset ]._t.locality&0x02 ? 
+		locality[ this[ offset ]._t.locality&0x02 -1 ].push(
+			offset
+		) : void 0;
+		this[ offset ]._t.locality&0x04 ? 
+		locality[ this[ offset ]._t.locality&0x04 -2 ].push(
+			offset
+		) : void 0;
+		
+		c = []
+		offset++;
+		}
+		i=j=c=null;
+	return 1;
+	}
+};
+	
+	var gui,pal,
+	// carPrototype
+	car  = { len:0 },
+	// generate 
+	locality = [
+		[], // industrial
+		[], // residial
+		[],  // downtown
+	];
+	
+	deflate.car.call(  car,  exportable.car );
+	delete exportable.car;
+	console.log( car );
+
+// screen x
+// screen y 
+// RWE
+function createCar( sx, sy, id_m_car ){
+	
+	// --/-- 
+	this.speed = 10;
+	this.angle = 0;
+	
+	// screen x&y
+	this.sx    = sx;
+	this.sy	   = sy;
+	
+	this.damage = 0;
+	// pointer json s_m_car
+	// hpropertyCar * prop 
+	// R--
+	this.prop = car[ id_m_car ];
+		
+}
+merge( createCar.prototype,  {
+	
+	append:function( angle ){
+		
+	},
+	// KBInterrup
+	// front
+	0x00:function(){
+		var x=y=0;
+		
+		if( this.angle >= -5 && this.angle <=5 ){
+			y = this.speed;	
+		}else if( this.angle > 5 && this.angle < 90 ){
+			x = -1;
+			y = 1;
+		}else if( this.angle == 90  ){
+			x = -this.speed;
+		}else if( this.angle > 90 && this.angle < 180  ){
+			x = y = -1;
+		}else if( this.angle == 180  ){
+			y = -this.speed;
+		}else if( this.angle > 180 && this.angle < 270 ){
+			y = -1; x=1;
+		}else if( this.angle == 270 ){
+			x=1;
+		}else if( this.angle > 270 ){
+			x=y=1;
+		}
+		
+		rotate( { 
+			x: this.prop.x,
+			y: this.prop.y,
+			angle: this.angle,
+			__code:this.prop.__code
+			
+			}, this.sx-=x , this.sy-=y );
+		
+	},
+	//left
+	0x01:function(){
+		
+		rotate( { 
+			x: this.prop.x,
+			y: this.prop.y,
+			angle: (this.angle=(this.angle+=1)%360),
+			__code:this.prop.__code
+			
+			}, this.sx, this.sy );
+		//console.log( this );
+	},
+	// behind
+	0x02:function(){
+		var x=y=0;
+		
+		if( this.angle >= -5 && this.angle <=5 ){
+			y = 1;	
+		}else if( this.angle > 5 && this.angle < 90 ){
+			x = -1;
+			y = 1;
+		}else if( this.angle == 90  ){
+			x = -1;
+		}else if( this.angle > 90 && this.angle < 180  ){
+			x = y = -1;
+		}else if( this.angle == 180  ){
+			y = -1;
+		}else if( this.angle > 180 && this.angle < 270 ){
+			y = -1; x=1;
+		}else if( this.angle == 270 ){
+			x=1;
+		}else if( this.angle > 270 || (this.angle > 0 &&  this.angle > -90 ) ){
+			x=y=1;
+			console.log("ok")
+		}
+		
+		rotate( { 
+			x: this.prop.x,
+			y: this.prop.y,
+			angle: this.angle,
+			__code:this.prop.__code
+			
+			}, this.sx+=x, (this.sy+=y) );
+			//console.log( this )
+	},
+	// right 
+	0x04:function(){
+		
+		rotate( { 
+			x: this.prop.x,
+			y: this.prop.y,
+			angle: (this.angle=(this.angle-=1)%360),
+			__code:this.prop.__code
+			
+			}, this.sx, this.sy );
+			//console.log( this );
+	},
+	
+});
+	
+	var bpal = [ 0xFF000000,
+			 0x00000000,
+			 
+			 0x00FFFFFF,
+			 0xFFFFFFFF ];
+
+	( gui = graphicalUserInterface({
+			
+			monitor: document.getElementById('screen'),
+			width : (1024),
+			height: (768),
+			rgba: true,
+			
+	}) ).resetScreen( 0xFF55FFFF ).refresh( );
+		
+	// check
+			//
+	var putSrite = function( x, y, sprite,w ){
+		var offsetX = x*1,
+			offsetY = y*1,
+			i = x = y = 0;
+		try{
+			for(; i< sprite.length; i++,x++ ){
+					
+				x = x === w ? 0 : x;
+				y+= (i%w) === 0 && i != 0 ? 1 : 0;
+				
+				gui.setPixel(
+					x+offsetX,
+					y+offsetY,
+					sprite[ i ] );
+			}
+		}catch(e){
+			return !1;
+		};
+	return !0;
+	};
+
+	var pksl = gnode("#package");
+	// @proc rotate
+	//	hprop { __code: dataimg, x: width, y: height, angle: 90 }
+	//	x,y -> point of destination
+	// @return bool
+	var rotate = function( hprop, x, y ){
+		var offsetX = x*1, // 1dot offset
+			offsetY = y*1, // 1dot offset
+			i =x=y=0,
+			
+			// rcos radiant cosinus
+			// rsin radiant sinus
+			rcos = Math.sin( Math.PI* hprop.angle /180 ),
+			rsin = Math.cos( Math.PI* hprop.angle /180 ),
+			// size of the new Image buffer
+			// x' * y' 
+			nX = parseInt( 
+				hprop.x * Math.abs( rcos ) + hprop.y * Math.abs( rsin ) 
+				),
+			nY = parseInt( 
+				hprop.x * Math.abs( rsin ) + hprop.y * Math.abs( rcos ) 
+				),
+			len = nX*nY;
+			
+			//pksl.val(nY+" // "+nX+" addr "+(( parseInt( i%nX ) + offsetX ) - ( nX/2 ))+"\r\n",1);
+			try{
+				// Browse new buffer	
+				var img= new Array( len ).fill( 0 );
+				for(; i < len; i++,x++ ){
+					
+					x = Math.floor(  
+						( hprop.x/2)+( (( parseInt( i%nX )  )) - nX/2 ) * rcos - ( ( parseInt( i/nX ) )-(nY/2) ) * rsin 
+						);
+					y = Math.floor(  
+						(hprop.y/2)+( (( parseInt( i%nX )  )) - nX/2 ) * rsin + ( ( parseInt( i/nX ) )-(nY/2) ) * rcos
+					);
+						
+					// gui monitor canvas
+					//
+					x >= 0 && x < hprop.x && y >= 0 && y < hprop.y ?
+					gui.setPixel(
+						parseInt( ( parseInt( i%nX ) + offsetX ) - ( nX/2 ) ), // use round or parsInt avoid float addr
+						parseInt( ( parseInt( i/nX ) + offsetY ) - ( nY/2 ) ), // use round or parsInt avoid float addr
+						hprop.__code[ ( y * hprop.x ) + x ]
+					) :gui.setPixel(
+						parseInt( ( parseInt( i%nX ) + offsetX ) - ( nX/2 ) ),
+						parseInt( ( parseInt( i/nX ) + offsetY ) - ( nY/2 ) ),
+						0xFFAAFF55
+					);
+				}
+			gui.refresh( );
+			offsetX=offsetY=i=x=y=nX=nY=rcos=rsin=len=null;
+			}catch(e){
+			return !1;
+			}
+	return !0;		
+	}
+
+	//setInterval(function(){ gui.resetScreen( 0x00FFFFFF ); rotate( car[1], 255 	, 0 ); car[1].angle+=5; car[1].angle = car[1].angle > 360 ? 0 : car[1].angle; }, 60 )
+	var one = new createCar( 255, 255,  8 ),
+	hsx = gnode("#sx"),
+	hsy = gnode("#sy"),
+	hag = gnode("#angle"),
+	hsp = gnode("#speed");
+	
+	console.log( one );
+		gnode("#caropts").on("change",function(  ){
+		
+		
+		_one = new createCar( one.sx, one.sy, this.val()*1 );
+		_one.angle = one.angle;
+		one = _one;
+		
+		gui.resetScreen( 0x00FFFFFF );
+		one[1]( );
+	});
+	//rotate( one.prop, 255,255 );
+	 console.log( one[1]( ) );
+	window.onkeypress = function( e ){
+		
+		gui.resetScreen( 0x00FFFFFF );
+		if( e.key == "q" || e.key == "d" ){
+			
+			one[0]();
+			( e.key == "q" ?  one[4] : one[1] ).call( one );
+		
+		}
+		
+		if( e.key == "z" ){
+			one[0]();
+		}
+		if( e.key == "s" ){
+			one[2]();
+		}
+		
+		hsx.val( one.sx ),
+		hsy.val( one.sy ),
+		hag.val( one.angle ),
+		hsp.val( one.speed );
+	};
+	
+	//01setInterval(function(){ gui.resetScreen( 0x00FFFFFF );  }, 60 )
+	
+	</script>
+	
+<html>
+	</html>
+<html>
+	<head>
+	
+		<script src="./data/screen.js" ></script>
+		
+		<script src="./data/car/p_m_car.js" ></script>
+		
+		<script src=".././Test/MemoryASCII/js/gnode.js" > </script>
+	</head>
+	
+	<body>
+	<div>
+		car position : 
+		<table>
+			<tr><td>screenX </td><td> <input type="text" id="sx" > </td><td>screenY </td><td> <input type="text" id="sy" > </td></tr>
+			<tr><td>angle  </td><td> <input type="text" id="angle" > </td><td>speed  </td><td> <input type="text" id="speed" > </td></tr>
+		</table>
+		<select id="caropts"><option value="-1">default</option></select><br>
+		<canvas id="screen" style="border:1px solid #000;"></canvas>
+	</body>
+	<script>	
+(function( self ){
+	var exportable 		 = {},
+		notexportable    = {},
+		 i = 0;
+	
+	function throwError( e ){
+		console.log( 
+		e//str_format.apply( this, e )
+		);
+	}
+	
+	function __get( a, b ){
+		var tmp, dep, i = 0, 
+			__exportable,
+			argv = [];
+	
+		if( ( tmp = exportable[ a ] ) ){
+			if( tmp.mount && typeof tmp.mount === "function" ){
+				
+				try{
+					while( ( dep = tmp.dependency[ i ] )  ){
+						
+						argv.push(
+							dep == "export" ? (__exportable = {})  :
+							__get.call( 
+								null,
+								dep,
+								tmp
+							)
+						);
+						i++;
+					}				
+				}catch(e){
+					throwError(
+						["Denepence %c don't existing. parent mdoule : %c",
+						dep,
+						btoa( tmp.module )
+						]
+					);
+				}
+				tmp.returned = ( tmp.returned = tmp.mount.apply( 
+					 tmp._w_,	// _w_
+					 argv
+					) ) === undefined || tmp.returned === null ? __exportable : tmp.returned;
+				delete tmp.mount;
+				
+			}else if( tmp.mount ){
+				tmp.returned = tmp.mount;
+				delete tmp.mount;
+			}else;
+			
+		return tmp.returned;
+		}else{
+		throwError(
+			["Warning module :: %c :: wanted did not defined from %c",
+			a,
+			b ? b.guid : "unknow"
+			]
+			);
+		}
+	return null;
+	}
+	/* import new*/
+	function __add( a, b, c, d  ){
+		var ptr;
+		
+		if( !exportable[ a ] ){
+			
+			/*import module*/
+			exportable[ a ] = ({
+			
+				module 	   : "__module__" + btoa( a ),
+				mount  	   : c,
+				dependency : b,
+				// proc id
+				guid	   : btoa( "__module["+i+"]__" + btoa( a ) ),
+				_w_		   : {},
+				
+			});
+			
+			i++;
+		}else{
+			throwError(
+			["Warning %c created is a duplicate module. enum dependency : [ %c ]",
+			"__module__" + btoa( a ) +"/"+ i,
+			b.join(", ")
+			]
+			);
+		}
+	return !0;
+	}
+	
+	function inmodule( a, b ){ exportable[ a ] = { module: "__module__"+ btoa( a ), returned: b, access: 3 }; }
+	
+	// import
+	function __import( a,b,c,d ){
+		return __add( a, ["def","req","export"].concat( b ), c, d );
+	}
+	function __req( a ){
+	return  __get( a );
+	}
+	
+	inmodule("def", __import );
+	inmodule("req", __req );
+	
+	/**/
+	self.define = self._import = __import;
+	self.req    = self._export = __req;
+	
+})( self === window ? self : window );
+
+/*
+*
+*/
+Array.prototype.sum = function( ){
+	var i =  sum = 0,
+		len = this.length;
+	try{
+		for(; i < len; i++ )
+		sum += typeof parseInt( this[ i ] ) === "number" ?
+		parseInt( this[ i ] )  : 0;;
+	}catch(e){};
+return sum;
+};
+
+function LittleEndian( _32b, size ){
+return size == 8  ? _32b&0xff :
+	   size == 16 ? ( _32b&0xff ) << 8 | ( ( _32b >> 8 )&0xff )&0xffff :
+	   size == 32 ? ( (_32b&0xff ) << 24 | ( ( _32b >> 8 )&0xff ) << 16 | ( ( _32b >> 16 )&0xff ) << 8 | (_32b>>24)&0xff )&0xffffffff :
+	   LittleEndian( _32b, 32 );
+}
+
+var BYTE  = uint8  = 0x01,
+	WORD  = uint16 = 0x02,
+	DWORD = uint32 = 0x04,
+	QWORD = uint64 = 0x08,
+	int8  = 0x11,
+	int16 = 0x12,
+	int32 = 0x14,
+	int64 = 0x18;
+	
+function _sizeof( $__number__ ){
+return $__number__ <= 0xFF ? BYTE : 
+	   $__number__ > 0xFF && $__number__ <= 0xFFFF ? WORD :
+	   $__number__ > 0xFFFF && $__number__ <= 0xFFFFFFFF ? DWORD :
+	   $__number__ > 0xFFFFFFFF && $__number__ <= 0xFFFFFFFFFFFFFFFF ? QWORD
+	   : -1;
+}
+
+
+define("error",[],function(a,b,c ){
+return{
+	astr:["overflow memory","Critical error report :","BAD TYPE *&rarr;"],
+	errorno:0,
+	error:!1,
+	str  :"",
+	getStrError:function(){
+		return ( this.error != 0 ? this.astr[ this.errorno-1 ]+
+			   " "+this.str : "0" );
+	},
+};
+});
+
+define("struct",["error"],function(a,b,c, error ){
+
+return{
+		
+	// buffer 
+	// offset 
+	// ulen 1, 2, 4, 8, len 17, 18, 20, 24
+	// max 32 bits
+	//@return integer
+	__chr2int:function( buffer, off, len ){
+		var buffer = ( buffer || "" ),
+			rol	   = len*8, ret = signed = 0,
+			end	   = off+(len&0x0f);
+			
+			signed = (len&0x10) >> 4;
+		try{
+			for(; off < end; off++ ){
+				
+				buffer[ off ] ?
+					// review ret |= method
+					( ret += ( 1 << (rol-=8) ) * buffer.charCodeAt( off ) )
+					// nop
+					: 0; 
+			}
+		}catch(e){
+			error.errorno = 0x02;
+			error.str	  = e.stack;
+			return !( error.error = 1 )		
+		}
+	return signed ? ( ret << 24 ) >> 24 : ret;
+	},   
+	
+	// int2chr
+	// max uint32
+	__int2chr:function( val, sizeof ){
+		var __trame__ = "",
+			signed    = 0,
+			ror		  =  ( !sizeof ?
+						_sizeof( val ) : sizeof ) * 8;
+		try{
+			if( val > Math.pow( 2 , ror )  ){
+				error.errorno = 0x01; 
+				error.str	= " use only "+(ror/8)+" byte(s) in memory ";
+				return !( error.error = 1 );
+			}
+			while( ror > 0 ){
+				__trame__ += String.fromCharCode(
+					( val >> (ror-=0x08) )&0xff
+				);	
+			}
+		}catch(e){
+			error.errorno = 0x02;
+			error.str 	 = e.stack; 
+			return !( error.error = 1 );
+		}
+	return __trame__;
+	},
+	// 
+	// buffer = > "ÿ", off => 0, size => { fb:3, sb:1, tb:2, ef:2 } or
+	// buffer => "oÿ", off => 1, size =>....
+	// @return { fb:7, sb:1, tb:3, eb:3 } 
+	__chr2bit:function( buffer, off, size ){
+		var len = i = rol = 0, tmp,
+			sizeof = [], data;
+			
+			size = ( size || {} );
+			try{
+				// look for size of 
+				// bit element
+				for( tmp in size ){
+					sizeof.push(
+						size[ tmp ]
+					);
+					len += size[ tmp ];
+				}
+				
+				// get buffer 
+				len += (len%2);
+				data = this.__chr2int( 
+					buffer.substr( 
+						off,
+						 parseInt( len/8 ) == 0 ? 1 : parseInt( len/8 )
+					),
+					0, parseInt( len/8 ) == 0 ? 1 : parseInt( len/8 )
+				);
+				// parse
+				for( tmp in size){
+				
+					rol = sizeof.slice( i+1 )
+								.sum( );
+					size[ tmp ] = ( data >> rol )&(Math.pow( 2, size[ tmp ] )-1);
+					i++;
+				}
+			len = i = tmp = sizeof = data = null;
+			}catch(e){
+				error.errorno = 0x02;
+				error.str	  = e.stack;
+			return !( error.error   = 1 );
+			}
+			
+	return size;
+	},
+	// 
+	// val => { fb:7, sb:1, tb:3, eb:3 } , size => { fb:3, sb:1, tb:2, ef:2 }
+	// @return "ÿ" 
+	__bit2chr:function( val, size ){
+		var __trame__ = "",tmp,
+		n = ntmp = 0;
+		try{
+			for( tmp in size ){
+			
+				if( typeof val[ tmp ] === "string" ){
+					error.errorno = 0x03
+					error.str     = tmp+" invalid assignment from integer variable";
+					error.error   = 1;
+					break;
+				}
+				// check if exist
+				val[ tmp ] = val[ tmp ] ?
+				val[ tmp ] : 0;
+				
+				if( val[ tmp ] >= 0 && val[ tmp ] < Math.pow( 2, ( size[ tmp ] ) ) ){
+					
+					// overflow int 32 bit QWORD not supported
+					//alert( Math.pow( 2, ntmp += size[ tmp ] ) +" "+ Math.pow(2, DWORD * 8));
+					if( Math.pow( 2, ( ntmp += size[ tmp ] ) ) >= Math.pow( 2, DWORD * 8 ) ){
+					
+						__trame__ += this.__int2chr(
+							n,
+							DWORD
+						);
+						ntmp = n = 0;
+					}
+					
+					n = ( n > 0 ) ? ( n << size[ tmp ] ) | val[ tmp ] : val[ tmp ];
+				}else{
+					n = 0;
+					error.errorno = 0x01;
+					error.str	  = "use only "+size[ tmp ]+" bit(s) in memory ";
+					error.error   = 1;
+					break;
+				}
+				
+			}
+			__trame__  += this.__int2chr( 
+				n
+			);
+		}catch(e){
+			n = 0;
+			error.errorno = 0x02;
+			error.str    = e.stack;
+			return !( error.error = 1 );
+		}
+	return __trame__;
+	},
+	
+	// buffer data
+	// struct
+	// offet of starting
+	buffer2struct:function( buffer, struct, off ){
+		var off = ( off || 0 ),
+			buffer = ( buffer ||"" ),
+			toff,tmp, i,j;
+		try{
+			for( tmp in struct ){
+				
+				toff = 0;
+				
+				typeof struct[ tmp ] === "number" ?
+					(struct[ tmp ] = this.__chr2int(
+						buffer,			// buffer
+						off,		   // offset
+						( toff += struct[ tmp ] ) // len
+					), toff &=0x0f ) : void 0;
+				
+				
+				if( typeof struct[ tmp ] == "object"  &&
+					struct[ tmp ] !== null ){
+					
+					toff = this.sizeof( struct[ tmp ], 1 );
+					struct[ tmp ] = this.__chr2bit( 
+						buffer,		// buffer
+						off,		// offset
+						struct[ tmp ]	// void * struct
+					);
+				}
+				
+				// const char 
+				if( typeof struct[ tmp ] === "string" ){
+					var a,b,_off=0;
+					
+					b = parseInt( struct[ tmp ] );
+					i = off, j = isNaN( b ) ? -1 : 0,
+					a  = !isNaN( b ) ? b : 0 ;
+					struct[ tmp ] = "";
+					
+					while( buffer[ i ] ){
+						
+						if( ( buffer[i].charCodeAt(0) == 0x00 && j == -1 ) || ( j >= a ) ){
+							_off = buffer[i].charCodeAt(0) == 0x00 ? 1 : 0;
+							break;
+						}
+						struct[ tmp ] += buffer[ i ];
+						j > -1 ? (j+=1) : void 0;
+						i++;
+					}
+					toff = struct[ tmp ].length+_off;
+				}
+				
+				if( error.error ){
+					struct = false;
+					break;
+				}
+				
+				off += toff;
+			}
+		}catch(e){
+			error.errorno = 0x02;
+			error.str = e.stack;
+		return !( error.error = 1 );
+		}
+		
+	return struct;
+	},
+	
+	// _s : Structure complete
+	// _ptrs : void * Structure 
+	// buffer
+	struct2buffer:function( _s, _ptrs, buffer ){
+		var tmp,
+		buffer = ( buffer || "" );
+		try{
+			for( tmp in _s ){
+				
+				typeof _s[ tmp ] === "number" ?
+				buffer += this.__int2chr( 
+					_s[tmp],
+					_ptrs[ tmp ]
+				) : void 0;
+				
+				typeof _s[ tmp ] === "string" ?
+				buffer += _s[ tmp ] : void 0;
+				
+				typeof _s[ tmp ] === "object" &&
+				_s[ tmp ] !== null ?
+				buffer += this.__bit2chr( 
+					_s[tmp],
+					_ptrs[tmp]
+				) : void 0;
+				
+				if( error.error ){
+					error.errorno == 1 || error.errorno == 3 ?
+					error.str = "*->"+tmp+" "+error.str
+					: void 0; 
+					buffer = false;
+					break;
+				}
+			}
+		}catch(e){
+			 error.errorno = 0x02;
+			 error.str 	 = e.stack; 
+			return !( error.error = 1 );
+		}
+	
+	return buffer;
+	},
+	
+	// void struct
+	// sizeof struct
+	sizeof:function( struct, deep ){
+		var tmp,size = 0;
+		try{
+			for( tmp in struct ){
+			
+				size += typeof struct[ tmp ] === "object" ?
+					this.sizeof(
+						struct[ tmp ],
+						1
+					) : 
+					typeof struct[ tmp ] === "number" ?
+						struct[ tmp ] : 
+						!isNaN( parseInt( struct[ tmp ] ) ) ? parseInt( struct[ tmp ] )
+					  : 0;			
+			}
+		}catch(e){};
+	return ( deep ? size > 8 ? size/8 : 1 : size );
+	},
+	};
+});
+
+
+var struct = req("struct");
+
+// install 
+// load data
+function s_m_car(){
+//structure car
+return {
+		name:"",
+		_t:{ 
+			rsv:5,
+			locality: 3
+		},
+		type:BYTE,
+		x:WORD,
+		y:WORD,	
+		__code:"",
+	};
+}
+var deflate = {
+	// car dat
+	car: function( A_m_car  ){
+		var offset = this.len,
+			i = j = 0,c = [];
+			
+		for( i in A_m_car ){
+		this[ offset ] = struct.buffer2struct(
+				atob( A_m_car[i] ),
+				s_m_car( )
+		);
+		
+		this[ offset ].__code = atob(
+			this[ offset ].__code
+			);
+		
+		for( j=0; j < this[ offset ].__code.length; j+=4 ){
+			c.push(
+			struct.__chr2int( this[ offset ].__code, j,  4 )
+			);
+		}
+		this[ offset ].angle = 0;
+		this[ offset ].__code = c;
+		
+		// ******************DEBUG************************
+		gnode("#caropts").app(
+			gnode("<option>").made({
+				value: offset,	
+				innerHTML: this[ offset ].name
+			}).node
+		);
+		// **********************************************
+		
+		/*push locality*/
+		//
+		this[ offset ]._t.locality&0x01 ? 
+		locality[ this[ offset ]._t.locality&0x01 -1 ].push(
+			offset
+		) : void 0;
+		this[ offset ]._t.locality&0x02 ? 
+		locality[ this[ offset ]._t.locality&0x02 -1 ].push(
+			offset
+		) : void 0;
+		this[ offset ]._t.locality&0x04 ? 
+		locality[ this[ offset ]._t.locality&0x04 -2 ].push(
+			offset
+		) : void 0;
+		
+		c = []
+		offset++;
+		}
+		i=j=c=null;
+	return 1;
+	}
+};
+	
+	var gui,pal,
+	// carPrototype
+	car  = { len:0 },
+	// generate 
+	locality = [
+		[], // industrial
+		[], // residial
+		[],  // downtown
+	];
+	
+	deflate.car.call(  car,  exportable.car );
+	delete exportable.car;
+	console.log( car );
+
+// screen x
+// screen y 
+// RWE
+function createCar( sx, sy, id_m_car ){
+	
+	// --/-- 
+	this.speed = 10;
+	this.angle = 0;
+	
+	// screen x&y
+	this.sx    = sx;
+	this.sy	   = sy;
+	
+	this.damage = 0;
+	// pointer json s_m_car
+	// hpropertyCar * prop 
+	// R--
+	this.prop = car[ id_m_car ];
+		
+}
+merge( createCar.prototype,  {
+	
+	append:function( angle ){
+		
+	},
+	// KBInterrup
+	// front
+	0x00:function(){
+		var x=y=0;
+		
+		if( this.angle >= -5 && this.angle <=5 ){
+			y = this.speed;	
+		}else if( this.angle > 5 && this.angle < 90 ){
+			x = -1;
+			y = 1;
+		}else if( this.angle == 90  ){
+			x = -this.speed;
+		}else if( this.angle > 90 && this.angle < 180  ){
+			x = y = -1;
+		}else if( this.angle == 180  ){
+			y = -this.speed;
+		}else if( this.angle > 180 && this.angle < 270 ){
+			y = -1; x=1;
+		}else if( this.angle == 270 ){
+			x=1;
+		}else if( this.angle > 270 ){
+			x=y=1;
+		}
+		
+		rotate( { 
+			x: this.prop.x,
+			y: this.prop.y,
+			angle: this.angle,
+			__code:this.prop.__code
+			
+			}, this.sx-=x , this.sy-=y );
+		
+	},
+	//left
+	0x01:function(){
+		
+		rotate( { 
+			x: this.prop.x,
+			y: this.prop.y,
+			angle: (this.angle=(this.angle+=1)%360),
+			__code:this.prop.__code
+			
+			}, this.sx, this.sy );
+		//console.log( this );
+	},
+	// behind
+	0x02:function(){
+		var x=y=0;
+		
+		if( this.angle >= -5 && this.angle <=5 ){
+			y = 1;	
+		}else if( this.angle > 5 && this.angle < 90 ){
+			x = -1;
+			y = 1;
+		}else if( this.angle == 90  ){
+			x = -1;
+		}else if( this.angle > 90 && this.angle < 180  ){
+			x = y = -1;
+		}else if( this.angle == 180  ){
+			y = -1;
+		}else if( this.angle > 180 && this.angle < 270 ){
+			y = -1; x=1;
+		}else if( this.angle == 270 ){
+			x=1;
+		}else if( this.angle > 270 || (this.angle > 0 &&  this.angle > -90 ) ){
+			x=y=1;
+			console.log("ok")
+		}
+		
+		rotate( { 
+			x: this.prop.x,
+			y: this.prop.y,
+			angle: this.angle,
+			__code:this.prop.__code
+			
+			}, this.sx+=x, (this.sy+=y) );
+			//console.log( this )
+	},
+	// right 
+	0x04:function(){
+		
+		rotate( { 
+			x: this.prop.x,
+			y: this.prop.y,
+			angle: (this.angle=(this.angle-=1)%360),
+			__code:this.prop.__code
+			
+			}, this.sx, this.sy );
+			//console.log( this );
+	},
+	
+});
+	
+	var bpal = [ 0xFF000000,
+			 0x00000000,
+			 
+			 0x00FFFFFF,
+			 0xFFFFFFFF ];
+
+	( gui = graphicalUserInterface({
+			
+			monitor: document.getElementById('screen'),
+			width : (1024),
+			height: (768),
+			rgba: true,
+			
+	}) ).resetScreen( 0xFF55FFFF ).refresh( );
+		
+	// check
+			//
+	var putSrite = function( x, y, sprite,w ){
+		var offsetX = x*1,
+			offsetY = y*1,
+			i = x = y = 0;
+		try{
+			for(; i< sprite.length; i++,x++ ){
+					
+				x = x === w ? 0 : x;
+				y+= (i%w) === 0 && i != 0 ? 1 : 0;
+				
+				gui.setPixel(
+					x+offsetX,
+					y+offsetY,
+					sprite[ i ] );
+			}
+		}catch(e){
+			return !1;
+		};
+	return !0;
+	};
+
+	var pksl = gnode("#package");
+	// @proc rotate
+	//	hprop { __code: dataimg, x: width, y: height, angle: 90 }
+	//	x,y -> point of destination
+	// @return bool
+	var rotate = function( hprop, x, y ){
+		var offsetX = x*1, // 1dot offset
+			offsetY = y*1, // 1dot offset
+			i =x=y=0,
+			
+			// rcos radiant cosinus
+			// rsin radiant sinus
+			rcos = Math.sin( Math.PI* hprop.angle /180 ),
+			rsin = Math.cos( Math.PI* hprop.angle /180 ),
+			// size of the new Image buffer
+			// x' * y' 
+			nX = parseInt( 
+				hprop.x * Math.abs( rcos ) + hprop.y * Math.abs( rsin ) 
+				),
+			nY = parseInt( 
+				hprop.x * Math.abs( rsin ) + hprop.y * Math.abs( rcos ) 
+				),
+			len = nX*nY;
+			
+			//pksl.val(nY+" // "+nX+" addr "+(( parseInt( i%nX ) + offsetX ) - ( nX/2 ))+"\r\n",1);
+			try{
+				// Browse new buffer	
+				var img= new Array( len ).fill( 0 );
+				for(; i < len; i++,x++ ){
+					
+					x = Math.floor(  
+						( hprop.x/2)+( (( parseInt( i%nX )  )) - nX/2 ) * rcos - ( ( parseInt( i/nX ) )-(nY/2) ) * rsin 
+						);
+					y = Math.floor(  
+						(hprop.y/2)+( (( parseInt( i%nX )  )) - nX/2 ) * rsin + ( ( parseInt( i/nX ) )-(nY/2) ) * rcos
+					);
+						
+					// gui monitor canvas
+					//
+					x >= 0 && x < hprop.x && y >= 0 && y < hprop.y ?
+					gui.setPixel(
+						parseInt( ( parseInt( i%nX ) + offsetX ) - ( nX/2 ) ), // use round or parsInt avoid float addr
+						parseInt( ( parseInt( i/nX ) + offsetY ) - ( nY/2 ) ), // use round or parsInt avoid float addr
+						hprop.__code[ ( y * hprop.x ) + x ]
+					) :gui.setPixel(
+						parseInt( ( parseInt( i%nX ) + offsetX ) - ( nX/2 ) ),
+						parseInt( ( parseInt( i/nX ) + offsetY ) - ( nY/2 ) ),
+						0xFFAAFF55
+					);
+				}
+			gui.refresh( );
+			offsetX=offsetY=i=x=y=nX=nY=rcos=rsin=len=null;
+			}catch(e){
+			return !1;
+			}
+	return !0;		
+	}
+
+	//setInterval(function(){ gui.resetScreen( 0x00FFFFFF ); rotate( car[1], 255 	, 0 ); car[1].angle+=5; car[1].angle = car[1].angle > 360 ? 0 : car[1].angle; }, 60 )
+	var one = new createCar( 255, 255,  8 ),
+	hsx = gnode("#sx"),
+	hsy = gnode("#sy"),
+	hag = gnode("#angle"),
+	hsp = gnode("#speed");
+	
+	console.log( one );
+		gnode("#caropts").on("change",function(  ){
+		
+		
+		_one = new createCar( one.sx, one.sy, this.val()*1 );
+		_one.angle = one.angle;
+		one = _one;
+		
+		gui.resetScreen( 0x00FFFFFF );
+		one[1]( );
+	});
+	//rotate( one.prop, 255,255 );
+	 console.log( one[1]( ) );
+	window.onkeypress = function( e ){
+		
+		gui.resetScreen( 0x00FFFFFF );
+		if( e.key == "q" || e.key == "d" ){
+			
+			one[0]();
+			( e.key == "q" ?  one[4] : one[1] ).call( one );
+		
+		}
+		
+		if( e.key == "z" ){
+			one[0]();
+		}
+		if( e.key == "s" ){
+			one[2]();
+		}
+		
+		hsx.val( one.sx ),
+		hsy.val( one.sy ),
+		hag.val( one.angle ),
+		hsp.val( one.speed );
+	};
+	
+	//01setInterval(function(){ gui.resetScreen( 0x00FFFFFF );  }, 60 )
+	
+	</script>
+	
+<html>
+	</html>
