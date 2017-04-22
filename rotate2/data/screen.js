@@ -2,8 +2,24 @@
 /*
 * @LUpdate 17/04/2017
 * @VErsion 1.3
+* 
+work arrond to canvas object
+setting
+	{
+	 monitor : handle canvas,
+	 width: uint32,
+	 height: uint32, 
+	 
+	 
+	 
+	 no facultif
+	 rgba: true, default 0xFF	
+	 buffer: [] //
+	
+	}
 */
 var graphicalUserInterface = function( setting, _self ){
+	
 		var self = _self || {};
 		var rawMonitor = setting.monitor,
 			ctxMonitor = rawMonitor.getContext("2d"),
@@ -36,8 +52,8 @@ var graphicalUserInterface = function( setting, _self ){
 	};
 	// resize Monitor
 	self.resize = function( x, y ){
-		rawMonitor.width  = self.screen_x = screen_x = x;
-		rawMonitor.height = self.screen_y = screen_y = y;
+		rawMonitor.width  = this.screen_x = screen_x = x;
+		rawMonitor.height = this.screen_y = screen_y = y;
 		screen_d = ctxMonitor.createImageData( x, y );
 	};
 	["get","set"].map( function( val ){
@@ -91,6 +107,7 @@ var graphicalUserInterface = function( setting, _self ){
 	// refresh monitor
 	self.refresh = function( ){
 		ctxMonitor.putImageData( screen_d, 0,0 );
+	return this;
 	};
 	// convert int to RRGGBB
 	var intToRgb = self.intToRgb = window.intToRgb = function( color ){
@@ -100,5 +117,79 @@ var graphicalUserInterface = function( setting, _self ){
 		};
 	};
 	
+	// @proc
+	// @return void
+	// browse each pixelDepth
+	self.each = function( callback ){
+		var tmp, offset = 0;
+		try{
+			for(; offset < (this.screen_x * this.screen_y)*4 ; offset+=4 ){
+					
+				callback.call(
+					( setting.buffer || this ),			   // this
+					offset/4,							  // addr 
+					( tmp = this.getRawPixel( offset ) ),// int color
+					this.intToRgb( tmp ),				// JSON{ rgb }
+					parseInt( offset%this.screen_x ),  // X position
+					parseInt( offset/this.screen_y )  // Y position
+				);
+			}
+		}catch(e){};
+	return this;
+	};
+	//
+	// v 1.3
+	self.tiles = function( opts ){
+		var _self = this;
+	return {
+		
+		setLitesByOffset:function( offset, sprite, clr, bckg ){	
+		return this.setLites( 
+				parseInt( offset% ( _self.screen_x / opts.offsetTilesX ) ),
+				parseInt( offset/ ( _self.screen_x / opts.offsetTilesX ) ),
+				sprite,
+				clr,
+				bckg
+			);
+		},
+		setLites:function( x, y, sprite, clr, bckg ){
+			var offsetX = x * ( opts.offsetTilesX || 1 ),
+				offsetY = y * ( opts.offsetTilesY || 1 ),
+				// center opts
+				cx = opts.center ? parseInt( opts.offsetTilesX/2  ) : 0,
+				cy = opts.center ? parseInt( opts.offsetTilesY/2 )  : 0,
+				len = sprite.length,
+				i=0;
+				//check
+				offsetX /= opts.mod === 0 ? opts.offsetTilesX : 1;
+				offsetY /= opts.mod === 0 ? opts.offsetTilesY : 1;
+				
+			try{
+				for(; i < len; i++ ){
+					_self.setRawPixel( 
+						( ( ((( parseInt( i/ opts.offsetTilesX ) + offsetY ) - cy ) * _self.screen_x ) + ((parseInt( i% opts.offsetTilesX )- cx + offsetX ) ))*0x04 ),
+						// himself
+						!opts.mod || opts.mod === 0 ?
+							sprite[ i ] :
+						opts.mod === 1 ?
+							opts.palette[ sprite[i] ] :
+						// binary img
+						opts.mod === 2 ?
+							( sprite[ i ] === 1 ? clr : 
+							  sprite[ i ] === 0 && ( bckg || bckg >= 0 ) ? bckg : _self.getRawPixel( i ) ) 
+							  : void 0
+					);
+				}		
+			}catch(e){
+				//error 
+				console.log(e);
+				return false;
+			}
+		return ( opts.buffer ? opts.buffer : true );
+		}
+	};		
+	};
+	
+	
 return self;
-};
+}; 
