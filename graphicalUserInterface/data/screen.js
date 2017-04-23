@@ -34,7 +34,7 @@ var graphicalUserInterface = function( setting, _self ){
 			
 			
 	["x","y"].map( function( val ){
-			self["screen_"+val ] = val == "x" ? screen_x : screen_y;
+			self["screen_"+val ] = val === "x" ? rawMonitor.width : rawMonitor.height;
  	});
 	self.drawImage = function( imgNode ){
 		ctxMonitor.drawImage( imgNode, 0,0 );
@@ -186,8 +186,8 @@ var graphicalUserInterface = function( setting, _self ){
 							opts.palette[ sprite[i] ] :
 						// binary img
 						opts.mod === 2 ?
-							( sprite[ i ] === 1 ? clr : 
-							  sprite[ i ] === 0 && ( bckg || bckg >= 0 ) ? bckg : _self.getRawPixel( i ) ) 
+							( sprite[ i ] === 1 ? opts.palette[ clr ] : 
+							  sprite[ i ] === 0 && ( bckg || bckg >= 0 ) ? opts.palette[ bckg ] : _self.getRawPixel( i ) ) 
 							  : void 0
 					);
 				}		
