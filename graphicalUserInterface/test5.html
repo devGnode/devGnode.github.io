@@ -63,7 +63,7 @@ var test = function( setting ){
 	
 	function light ( offset, nsprite ){
 		
-		sp.setLitesByOffset(
+		sp.setTilesByOffset(
 			offset,
 			sprites[ nsprite ]
 		);
@@ -96,7 +96,7 @@ return {
 			for(; y < monitor.lineMax; y++ ){
 				for( x= 0; x < monitor.charMax; x++ ){
 					
-					sp.setLites( 
+					sp.setTiles( 
 						x, y,
 						sprites[ 
 							mem != undefined && mem[ x+(y*80) ] > -1 ? 
