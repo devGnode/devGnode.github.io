@@ -154,8 +154,8 @@ var graphicalUserInterface = function( setting, _self ){
 		var _self = this;
 	return {
 		
-		setLitesByOffset:function( offset, sprite, clr, bckg ){	
-		return this.setLites( 
+		setTilesByOffset:function( offset, sprite, clr, bckg ){	
+		return this.setTiles( 
 				parseInt( offset% ( _self.screen_x / opts.offsetTilesX ) ),
 				parseInt( offset/ ( _self.screen_x / opts.offsetTilesX ) ),
 				sprite,
@@ -163,7 +163,7 @@ var graphicalUserInterface = function( setting, _self ){
 				bckg
 			);
 		},
-		setLites:function( x, y, sprite, clr, bckg ){
+		setTiles:function( x, y, sprite, clr, bckg ){
 			var offsetX = x * ( opts.offsetTilesX || 1 ),
 				offsetY = y * ( opts.offsetTilesY || 1 ),
 				// center opts
