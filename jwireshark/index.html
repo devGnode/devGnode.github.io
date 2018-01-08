@@ -1,0 +1,697 @@
+<html>
+
+	<head>
+	 <meta charset="UTF-8">
+	 <!-- Design WebOS !-->
+	 <link rel="styleSheet" type="text/css" media="screen" href="./wos/themes/ubun.css" />
+	 <link rel="styleSheet" type="text/css" media="screen" href="./wos/themes/base.css" />
+	 
+	 <!-- library OSWeb !-->
+ 	<script data-version="2.0" src="./wos/jno2.js" /></script>
+	<script data-version="1.1" src="./wos/libWind.js"></script> <!-- window library -->
+	<script data-version="1.1" src="./wos/base.js"></script> <!-- library -->
+	
+	<!-- jswireshark !-->
+	<script src="./lib/struct.js"></script>
+	<script src="./lib/JSmisc.js"></script>
+	<script src="./lib/JSlibnet.js"></script>
+	<script src="./lib/JSlibpcap.js"></script>
+	
+	<script src="./gwireshark/jwiresharkchild.js"></script>
+	</head>
+	<style>
+
+		
+		#colorTool{ font-family: Lucida Console, monospace, Arial; font-size:12px; width:300px; } 
+		#colorShowing{ border:1px solid #c0c0c0; width:100%;  }
+		.color{ display:inline-block; min-width:50px; text-align:center; vertical-align:middle; }
+		.clr{ width:295px; height:25px; overflow:hidden;  }
+		.clr_dbl{ width:124px; height: 25px; border-right: 1px solid #fff; }
+		.swrapColor{ border-bottom:1px solid #c0c0c0; width: 100%; }
+		
+		
+		.alignM{ text-align: center; }
+		.alignR{ text-align: right; }
+		.alignL{ text-align: left; }
+
+		label{ display: inline-block !important; min-width:150px;}
+		
+		/*resize*/
+		#contenerResize{ 
+			width:100%;display:flex;flex:1 1;
+		}
+		#contenerResize .collum{ overflow:hidden; min-width:60px;  min-height:100%; }
+		#contenerResize .name{ 
+			position:relative; background:#f5f5f5; max-height:70px; padding:5px;
+			user-select: none; -o-user-select:none; -moz-user-select: none; -khtml-user-select: none; -webkit-user-select: none;
+		}
+		#contenerResize .txt{ 
+			width:100%; min-width:60px; min-height:20px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:block;
+			font-size:13px; -webkit-user-select:none; user-select:none; padding:4px;
+		}
+		#contenerResize .txtName{ 
+			width:100%; min-width:60px; min-height:20px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:block;
+			font-size:14px; pointer-events:none; -webkit-user-select:none; user-select:none;
+		}
+		#contenerResize div.resize{ position:absolute; width:10px; height:100% !important; cursor: e-resize; right:0 !important; top:0 !important;  
+			background:#fefefe;
+		}
+		#contenerResize div.resize:hover{ 
+			background: #f5f5f5;
+			cursor: e-resize;
+		}
+
+			/*suber list items*/
+			ul{ list-style:none; margin:0; padding:0; }
+			#h_setting{ border:0px solid #fff;  } 
+			#h_setting li{ display:inline-block; vertical-align:top; margin:0;  }
+			#h_setting li span.nameApp{ font-family:systemB; font-size:14px; color:#D6D3CF; padding:2px 6px; display:block; min-width:60px; max-width:300px; overflow-x:hidden; text-overflow:ellipsis; }
+			#h_setting li span.eits{ font-family:systemL; font-size:12px; color:#AEA79F; padding:4px; display:block; border:1px solid tranparent; }
+			.hselected{ 
+			 border:0px solid transparent; border-bottom:0; background:#333333;
+			}
+			#h_setting li span.eits:hover, .hselected{ text-decoration: underline; }
+			.subItems{ display:none; position:absolute; width:auto; background:#333333; box-shadow:-1px 1px 5px #000; }
+			#sub li{ display:block; font-family:systemB; font-size:13px; color:#fff;   }
+			
+		#contextMenu{ border:1px solid #a9a9a9; width:200px; max-width:300px; position:absolute; z-index:1003; }
+		#contextMenu ul{ background:#f5f5f5; border-bottom:1px solid #d3d3d3; overflow:hidden; }
+		#contextMenu ul li ul li span:hover{ border:1px solid #a0522d; border-left:0; border-right:0; background:-webkit-linear-gradient(top,#ff9966 0%,#ff6633 100%); color:#fff; }
+		#contextMenu ul li ul li span.sdisabled,#contextMenu ul li ul li span.sdisabled:hover{ border:1px solid tranparent;border-left:0; border-right:0; color:#d3d3d3 }
+		#contextMenu ul li ul li span{ border:1px solid #f5f5f5;border-left:0; border-right:0;  margin:5px 0 0px 0!important;  display:flex; padding:5px; font-size:11px; overflow:ellipsis; width:95%; }
+		#contextMenu ul li ul.pair{ border-top:1px solid #fff; }
+		#contextMenu ul li ul div.ico{ width:15px; height:12px; vertical-align:-3px; margin-right:5px; background-repeat:no-repeat; background-size:100% 100%; display:inline-block; }
+		
+		
+		.open_m,.arru_m,.arrd_m,.arrud_m,.arrdd_m,.info_m{  display:block; background-position:0; width:100%; height:100%; background-size:100%; background-repeat:no-repeat; }
+		.open_m{ background-image:url('./wos/icon/actions/go-down.png'); }
+		.arrd_m{ background-image:url('./wos/icon/actions/arrow-down.png'); }
+		.arru_m{ background-image:url('./wos/icon/actions/arrow-up.png'); }
+		.arrdd_m{ background-image:url('./wos/icon/actions/arrow-down-double.png'); }
+		.arrud_m{ background-image:url('./wos/icon/actions/arrow-up-double.png'); }	
+		.info_m{ background-image:url('./wos/icon/status/dialog-information.png'); }
+		
+		#idf{ overflow-y:hidden; min-height:250px; width:100%; border-top:1px solid #c0c0c0;}
+		#idf_{ overflow-x:hidden; height:250px; width:100%; border-top:1px solid #c0c0c0;}
+		#hexdump td.addr{ background:#cecece; text-align:center; width:50px;font-size:12px;}
+		#hexdump td.h{ width:28px; height:28px !important; text-align:center; cursor:pointer;font-size:12px; font-weight:bold;  }
+		#hexdump td.h:hover{background:#ffff00;}
+		#hexdump td{ margin:0;padding:0;}
+		#hexdump td.ascii{ font-size:10px; overflow:hidden; width:15px; height:15px; text-align:center;margin:0;padding:0;}
+	
+		.elt{ padding:2px; }
+		.eth{background:#fefefe; } .arp{ background:#faf0d7; } .igmp,.ismp{background:#fff3d6;}
+		.udp{background:#daeeff;} .tcp{background:#fce0ff;} .icmp,.icmpv6{ background:#fce0ff;} .http{background:#e4ffc7;}
+		.know{ background:#e7e6ff;}
+	</style>
+	<body style="display:block; opacity:1; background-image:url('http://www.omgubuntu.co.uk/wp-content/uploads/2014/03/wallpaper_blog_post.jpg'); background-repeat:no-repeat; background-size:100% 100%;">
+		
+		
+		
+	
+		
+	<div style='width:150px; height:75px; display:block; position: absolute; z-index:1002; bottom:0; right:0; border:1px solid #000; background-image:url("http://www.omgubuntu.co.uk/wp-content/uploads/2014/03/wallpaper_blog_post.jpg"); background-repeat:no-repeat; background-size:100% 100%; overflow:hidden;'><div id='minDesk' style="position:relative; width:100%; height:100%">
+		
+	</div></div>	
+		<input type="text" name="foo" class="bar">
+		<div class="merde"> <p>KLM</p><p class="p">domHandler<p>klP</p></p> </div>
+		<div class="merde"><span id="foo">looool</span><span id="foo">loooggol<div >id</div></span><span id="foo">loddd545ool</span></div>
+<div class="merde" style="width:150px;border:1px solid #fff; padding:15px;"><p>150</p></div>
+<div class="merde"></div>
+	<script>
+
+ 
+function newContenerName( Name, resize ){
+return jno2('<div class="collum">').app(
+
+	jno2( '<div class="name">' )
+	.app( 
+		jno2( '<div class="textName">' ).val( Name )
+	).app( 
+		jno2('<div class="resize">')
+	)
+);
+}
+
+function contenerResize( element, contener, callback ){
+	var output = jno2('<div id="contenerResize">'),
+		i = sz = 0, line = null,tmp;
+	
+	callback = merge( 
+	{ click:function(){ }, },
+	callback
+	);
+	
+	for( i=0; i < element.length; i++ ){
+		// app new  module
+		 output.app( 
+			( element[i] = newContenerName( ( tmp = element[ i ] ).name,  true ) ).css("width", tmp.width+'px')
+		);
+		sz+=element[i].width( );
+	}
+
+	element[i-1].css("width", contener.width( ) - sz + element[i-1].width( ) );
+	output.any("div.resize", function( hdl ){
+		
+		jno2( hdl ).on("mousedown", function( e ){
+			var self = this.getParent( ).getParent( ),
+				sX = e.clientX, xW = self.width( )
+				
+			contener[0].onmousemove = function( e ){
+				self[0].style.width =  xW + e.clientX-sX +"px";
+				
+			};
+			window.onmouseup = function( e ){
+				contener[0].onmousemove = undefined;
+			};
+		
+		}).on("mouseup",function( ){
+			contener[0].onmousemove = "";
+		});	
+	});
+	
+	contener.app( output );
+	
+return {
+		bcolor:"#ff7f50",
+		uintl:0,
+		len  :0,
+		line:null,
+		click: null,
+		dbclick: null,
+
+		select:function( handle, color ){
+			this.selectLine( handle.dataInt("key"), handle.data("uid"), color );
+		},
+		prev:function( ){
+		console.log(this.uintl);
+			this.selectLine( null, element[0].get( this.uintl-= this.uintl-1 >= 0 ? 0 : -this.len ).data("uid"), this.bcolor );
+		},
+		next:function( ){
+console.log( "-------------------" );
+console.log( this.uintl );
+			console.log( this.uintl += (this.uintl+1 < this.len ? 2 : -this.len ) );
+console.log( "-------------------" );
+console.log( this.uintl );
+console.log( (this.uintl+1 < this.len ? 2 : -this.len ) );
+console.log( "-ENDDDDDDDDDDDDDDD-" );
+			this.selectLine( null, element[0].get( this.uintl ).data("uid"), this.bcolor );
+		},
+		selectLine:function( key, uid, color ){
+			
+			if( this.line )
+			this.unselectLine( this.line );;
+
+			this.uintl = contener.child(".u"+uid ).css("background", color || this.bcolor ).dataInt("i");
+			this.line  = uid;
+	
+		},
+		unselectLine:function( uid ){
+			contener.child(".u"+uid ).css("background","");
+		},
+		add:function( value, uid, _, dblcallback, classn ){
+			var i = 0, slf = this;
+			
+			try{
+				for(; i< value.length; i++ )
+				element[i].app( 
+					jno2("<div>").Class("txt curpt u"+uid )
+					.on("click", function(){
+						( _ || slf.click || callback.click  || function(){} ).call(
+							slf,
+							this
+						);
+					})
+					.on("dblclick", function(){
+						( dblcallback || slf.dbclick || function(){} ).call(
+							slf,
+							this
+						);
+					})
+					.data("uid", uid ).data("i", this.len )
+					.val( new String( value[i] != undefined ? value[i] : "" ).toString( ) )
+					.Class( classn || "" )
+				);;
+				this.len++;
+			}catch(e){
+			console.log( e );
+			};
+		},
+		rmLine:function( intg ){
+			contener.child(".u"+intg ).del( );
+			this.len--;
+		return true;
+		},
+		get:function( uid, data ){
+			var i = 0, tmp = [],_tmp;
+			
+			contener.child(".u"+uid )
+				.each( function( hdl ){
+					tmp.push( jno2( hdl ).val( ) );
+				return 1;
+				});
+			try{
+				i = 0;
+				for( _tmp in data ){
+					data[ _tmp ] = tmp[i];
+					i++
+				}
+			}catch(e){};
+		return data;
+		},
+		update:function( intg, val ){
+		contener.child(".u"+intg )
+			.each( function( hdl, i ){
+				val[ i ] != undefined ?				
+				jno2( hdl ).val( val[ i ] ) :
+				void 0;
+		return 1;
+		});
+		return true;
+		},
+		class:function( intg, c, rm ){
+			contener.child(".u"+intg )[ rm ? "rmClass" : "Class" ]( c ? c : void 0 );
+		},
+	};
+}
+
+//var testr = contenerResize(["name","sizer","caller"], gnode( document.body )  );
+
+
+_export("GwiresharkHexdump",["LGwireshark"],function( req, def, o, libw ){
+	
+return function( _, parent, d, i  ){
+	// window structure
+	this.title  = "Wireshark - frame [ "+i+" ]";
+	this.width  = 800;
+	this.height = 500
+	this.top    = this.left = 350;
+	this.swind.close = ( this.swind.hide = 0 )+1;
+	
+	this.swind.parent = parent;
+	this.swind.free = 1;
+
+	this.output={
+	
+	__sectionTxt:("<section class='_w_box'></section><section class='_w_box'><div id='idf_'><div id='idf' class='dump_w_'></div></div></section>"),
+		
+	__main:function( _, parent, __data__  ){
+		var slf = this,
+		p   = this.getParent( ),
+		s = (p.opts.dump == 16 ? 1 : 0),
+		pcm = { };
+		
+		pcm = {
+			proto:[
+				["null:Hexdump x16:"+s+":1:Alt+b"],["null:Hexdump x32:"+(!(s)*1)+":1:Alt+b"]
+			],
+			t:this.hMain.child(".dump_w_")
+		};
+		req("LcontextMenu").contextMenu( pcm, pcm.t, pcm.proto );
+		pcm.contextMenu.click = function( ){
+			
+			this.proto[0][0] = "null:Hexdump x16:"+((p.opts.dump == 16 ? 1 : 0))+":1:Alt+b";
+			this.proto[1][0] = "null:Hexdump x32:"+((p.opts.dump == 32 ? 1 : 0))+":1:Alt+b";
+		};
+		pcm.contextMenu.event = function(_,s){
+				
+			libw.updateHexdump( 
+				p.data.frame[ p.selected ].packet,
+				( p.opts.dump = s == "0:0" ? 16 : 32 )
+			);
+		};
+
+	
+		libw.hexdump(
+			this.hMain.child(".dump_w_"),
+			__data__,
+			this.getParent( ).opts.dump
+		);
+		// KeyBoardInterrpt shortcut
+		this.on('keyboardInterrupt',function( _ ){
+			if( ( _.ctrl || _.alt ) && _.uint8 == 66 ){
+				
+				libw.updateHexdump( 
+					p.data.frame[ p.selected ].packet,
+					( p.opts.dump = p.opts.dump == 32 ? 16 : 32 )
+				);
+			}
+		});
+		//
+	return this;
+	},
+	
+	};
+return 1;
+};
+});
+
+
+
+_export("LGwireshark",[],function( req, def, o ){
+
+/*HEXDUMP*/
+function _ascii( byte ){
+return byte === 0 || byte == 0x0d || byte == 0x0a ? "." : String.fromCharCode( byte );
+}
+o.hexdump = function( hdl, __frame__, addrLen, ascii ){
+	var i = 0,r,j;
+
+	r = "<table id='hexdump'><tr><td class='addr'><tt>"+ base.dec2hext( i, WORD ) +"</tt></td>";
+			
+	for(; i < ( __frame__.length )+( (addrLen || 0x10)-__frame__.length%(addrLen || 0x10) ); i++ ){
+	
+		if( !( i%( addrLen || 0x10 ) ) && i != 0 ){
+					
+			// ASCII 
+			for( j = i-( addrLen || 0x10 ); j < i; j++ ){
+				r +=  "<td class='ascii a_"+j+"'>"+ 
+				_ascii( __frame__.charCodeAt( j ) )+ 
+				"</td>";
+			}
+			r += "</tr><tr><td class='addr'><tt>"+ base.dec2hext( i, WORD )+"</tt></td>";
+					
+		}
+		r += "<td style='' class='h o_"+i+"'>"+ base.dec2hext( __frame__.charCodeAt( i ), BYTE ) +"</td>";
+			
+	}	
+	// ASCII
+	for( j = i-( addrLen || 0x10 ); j < i; j++ ){
+		r +=  "<td class='ascii a_"+j+"'>"+ 
+		_ascii( __frame__.charCodeAt( j ) )+ 
+		"</td>";
+	}
+	//Append
+	hdl.val( r+"</tr></table>" );
+	hdl.css("background","#fff").child('table').child("td.h")
+	.on("mouseover",function(e){
+		jno2( e.target ).css("background","#ffff00");
+
+	}).on("mouseout",function(e){
+		jno2( e.target ) .css("background","");
+	});
+return {
+	sslice:function( off, len ){
+		
+	},
+	unsslice( off, len ){
+
+	}
+	};			
+};
+
+o.updateHexdump = function( __frame__, length ){
+	var slf = this;
+	jno2(document.body).child(".dump_w_").each(function( h ){
+
+		slf.hexdump( 
+			jno2( h ),
+			__frame__,
+			length
+		);
+	 return 1;
+	 });
+};
+function push( a, b  ){
+var tmp;
+	if( ( tmp = this[a].indexOf( b ) ) > -1 )
+	this["_"+a][tmp]++;
+	else{
+		this[a].push( b );
+		this["_"+a][ this[a].length-1 ] = 1;
+	}
+}
+o.statistic = function( h ){
+return jno2.extend(h,{
+	ipv4:{
+		_src:{},_dst:{},
+		src:[],dst:[]
+	},
+	ipv6:{
+		_src:{},_dst:{},
+		src:[],dst:[],
+	},
+	puship:function( type, src, _s ){
+	return push.call( this[ "ipv"+(type == 0x0800 ? "4" : "6") ], src, _s["ipv"+(type == 0x0800 ? "4" : "6")][(type == 0x0800 ? "ip_"+src+"_addr" : src+"_addr")] );
+	},
+});
+};
+
+});
+_export("LGwframe",["LGwireshark"],function( req, def, o, libw ){
+
+o.loadfile = function( filename, freader ){
+	var tmp,k,i=0;
+
+	if( ( tmp = (/^(.+)\.(\w{1,})$/).exec( filename ) ) && this.acceptedExt.indexOf( tmp[ 2 ] ) > -1 ){
+					
+		// set title & enabled menu			
+		this.title( "Wireshark - "+filename, 0x02 );
+		this.getModule("menu").any("a>1",function( btn ){ btn.disabled( 0 ); });
+		
+		// read	
+		this.format[ tmp[ 2 ].toLowerCase( ) ].call(
+			this,
+			freader.result
+		);
+
+		if( this.data.e > 0 )
+		req("LprocessManager").createProcess(
+			"msgbox",
+			null,
+			{ title:"Wireshark - pcap parser error", msg: "\""+filename+"\" is not a valid file, bad magic number." },
+			0x0c | 0x100
+		);
+		else{
+	
+			this.fd = { name: filename, ext:tmp[ 2 ].toLowerCase( )  };	
+			this.getModule("menu").any("a>1", function( btn ){
+					btn.disabled( 0 );
+			});
+			try{
+				libw.statistic( this.stat = {} );
+				while( this.data.frame[ i ] ){
+			
+					this.items.add(
+						[ 
+						i+1,"0.000000",,,, 
+						( this.data.frame[i].packet_len || this.data.frame[i].orig_len ),
+						,], i
+					);
+					k = net.readFrame.call(
+						this,
+						this.data.frame[ i ].packet, i
+					);
+				i++;
+				};console.log( this );
+			}catch(e){ console.log( e);};
+			
+			libw.hexdump( this.find(".dump_w_"),  this.data.frame[ ( this.selected = 0 ) ].packet , this.opts.dump );
+			this.enabled = true;		
+		}
+
+	}else
+	req("LprocessManager").createProcess(
+		"msgbox",
+		this.token,
+		{ title:"Wireshark", msg: "\""+filename+"\" unsupported file, try again with another file !" },
+		0x04 | 0x100 | 0x80
+	);;
+};
+
+
+});
+_export("Gwireshark",["LGwireshark"],function( req, def, o, libw ){
+return function( slf ){
+	
+	// window structure
+	this.title  = "Wireshark";
+	this.width  = window.screen.width;
+	this.height = window.screen.height;
+	this.top    = this.left = this.swind.close = this.swind.hide = 0;
+	
+	this.ring0  = 0;
+
+	this.swind.icon   = "./img/Apps-Wireshark-icon.png";
+	this.swind.parent = null;
+	this.swind.locked = 1;
+
+	this.output={
+	
+	__sectionTxt:("<section data-module='menu' class='_w_box'></section>"+
+		      "<section data-module='btn' class='_w_box' id='idf_' ><div id='idf'></div></section>"+
+		      "<div id='idf_' class='dump_w_'><div id='idf'></div></div>"),
+	
+	/*RAZ APP*/
+	raz:function( ){
+		
+		if( this.data )
+		for(var i = 0;i< this.data.framelen; i++ )
+		this.items.rmLine( i );;;
+
+		libw.hexdump( this.find(".dump_w_"), "Open a File !", 16 );
+		this.data    = null;
+		this.selected = 0;
+		this.enabled = false;
+		this.opts    = { dump:16 };
+		this.fd	     = { name:"", ext: "" };
+		this.getModule("menu").any("a>1", function( btn ){
+			btn.disabled( 0 );
+		});
+	},
+	/*RELOAD NEW FILE*/
+	reload:function( ){
+	var slf = this;
+	if( this.enabled )
+	req("LprocessManager").createProcess(
+		"msgbox",
+		this.token,
+		{ title:"Wireshark", msg: "Do you want to close this \""+this.fd.name+"\" ?" },
+		0x08 | 0x300,
+		function( bool ){
+			if(bool)(slf.raz( ),slf.find("input[type='file']")[0].click( ));;;
+		return 1;
+		}
+	);
+	else
+	(slf.find("input[type='file']")[0].click( ),this.raz( ));;
+	},
+
+	__main:function( ){
+		var slf = this;
+
+		this.hMain.Class("systemL");
+		
+		// Attach libpcap
+		this.fd	     = { name:"", ext: "" };
+		this.data    = null;
+		this.enabled = false;
+		this.acceptedExt = [];
+		this.format = {};
+		window.libpcap( 
+			this
+		);
+
+		/*Menu callback*/		
+		this.newInput( "menu", { type:"file" }, "Open").on("change",function(e){
+			var fr;
+			slf.busy( 1 );
+			fr = new FileReader( );
+			fr.onload = function( ){
+				slf.loadfile.call(
+					slf,
+					e.target.files[0].name,
+					this
+				);
+				slf.busy( 0 );	
+			};
+			fr.readAsBinaryString(
+				 e.target.files[0],
+				 "ISO-8859-1" 
+			);
+		} ).css("display","none");
+
+		this.newButton( "menu", "open","<span class='open_m'></span>","width:22px;height:22px;",function(){
+				this.reload( );
+		});
+		this.newButton( "menu", "arrud","<span class='arrud_m'></span>","width:22px;height:22px;",function( ){
+			this.items.selectLine( 
+			null, 0
+			 );
+		}).disabled( 1 );
+		this.newButton( "menu", "arrdd","<span class='arrdd_m'></span>","width:22px;height:22px;",function( ){		
+			this.items.selectLine( 
+			null, this.data.framelen-1 || 0
+			 );
+		}).disabled( 1 );
+		this.newButton( "menu", "arru","<span class='arru_m'></span>","width:22px;height:22px;",function( ){
+			this.items.prev( );
+		}).disabled( 1 );
+		this.newButton( "menu", "arrd","<span class='arrd_m'></span>","width:22px;height:22px;",function( ){
+			this.items.next( );
+		}).disabled( 1 );
+		this.newButton( "menu", "about","<span class='info_m'></span>","width:22px;height:22px;",function(){
+			req("LprocessManager").createProcess(
+				"GwiresharkStaticIPv",
+				this.token,
+				"ipv4"
+			);
+		}).disabled( 1 );
+		this.newButton( "menu", "about","<span class='info_m'></span>","width:22px;height:22px;",function(){
+			req("LprocessManager").createProcess(
+				"GwiresharkStaticIPv",
+				this.token,
+				"ipv6"
+			);
+		}).disabled( 1 );
+		this.newButton( "menu", "about","<span class='info_m'></span>","width:22px;height:22px;",function(){
+			req("LprocessManager").createProcess(
+				"GwiresharkAboutFile",
+				this.token 
+			);
+		}).disabled( 1 );
+		/**/
+
+		this.items = contenerResize( [
+				{ name: "No.", width:"75", min:75 },
+				{ name: "Time", width:"150" },
+				{ name: "Source",width:"200", },
+				{ name: "Destination", width:"200", },
+				{ name: "Protocol", width:"80", },
+				{ name: "Length",width:"75", },
+				{ name: "Info", width:"400", }
+				], this.getModule("btn").css({margin:0,padding:0, background:"#fff",height:"400px"}).child("#idf")
+		);
+	
+
+		this.items.click = function( hdl ){
+			this.select( hdl );
+			
+			libw.hexdump(
+				slf.find(".dump_w_"),
+				slf.data.frame[ jno2( hdl ).dataInt("i") ].packet,
+				slf.opts.dump
+			);
+		};
+		this.items.dbclick = function( hdl ){
+
+			req("LprocessManager").createProcess(
+				"GwiresharkHexdump",
+				 slf.token, 
+				 slf.data.frame[ slf.items.uintl ].packet,
+				 slf.items.uintl+1
+			 );
+		};
+
+		// KeyBoardInterrpt shortcut
+		this.on('keyboardInterrupt',function( _ ){
+			// o -> open
+			if( ( _.ctrl || _.alt ) && _.uint8 ==  79  ){
+				slf.reload( );
+			}
+﻿			// v -> view
+			if( ( _.ctrl || _.alt ) && _.uint8 == 86 ){
+				req("LprocessManager").createProcess(
+					"GwiresharkHexdump", 
+					slf.token, 
+					this.data.frame[ this.selected ].packet
+				 );
+			}
+			if( req("__kboard__").isArrowKey( _.uint8 ) ){
+				console.log( "arrow" );
+			}
+		});
+		//
+		this.extend( req("LGwframe") );
+	},
+	
+	};
+return 1;
+};
+});
+
+req("LprocessManager").createProcess( "Gwireshark" );
+
+	</script>
+	</body>
+</html>
