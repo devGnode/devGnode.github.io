@@ -105,19 +105,9 @@
 		.know{ background:#e7e6ff;}
 	</style>
 	<body style="display:block; opacity:1; background-image:url('http://www.omgubuntu.co.uk/wp-content/uploads/2014/03/wallpaper_blog_post.jpg'); background-repeat:no-repeat; background-size:100% 100%;">
-		
-		
-		
 	
-		
-	<div style='width:150px; height:75px; display:block; position: absolute; z-index:1002; bottom:0; right:0; border:1px solid #000; background-image:url("http://www.omgubuntu.co.uk/wp-content/uploads/2014/03/wallpaper_blog_post.jpg"); background-repeat:no-repeat; background-size:100% 100%; overflow:hidden;'><div id='minDesk' style="position:relative; width:100%; height:100%">
-		
+	<div style='width:150px; height:75px; display:block; position: absolute; z-index:1002; bottom:0; right:0; border:1px solid #000; background-image:url("http://www.omgubuntu.co.uk/wp-content/uploads/2014/03/wallpaper_blog_post.jpg"); background-repeat:no-repeat; background-size:100% 100%; overflow:hidden;'><div id='minDesk' style="position:relative; width:100%; height:100%">	
 	</div></div>	
-		<input type="text" name="foo" class="bar">
-		<div class="merde"> <p>KLM</p><p class="p">domHandler<p>klP</p></p> </div>
-		<div class="merde"><span id="foo">looool</span><span id="foo">loooggol<div >id</div></span><span id="foo">loddd545ool</span></div>
-<div class="merde" style="width:150px;border:1px solid #fff; padding:15px;"><p>150</p></div>
-<div class="merde"></div>
 	<script>
 
  
@@ -277,74 +267,6 @@ console.log( "-ENDDDDDDDDDDDDDDD-" );
 
 //var testr = contenerResize(["name","sizer","caller"], gnode( document.body )  );
 
-
-_export("GwiresharkHexdump",["LGwireshark"],function( req, def, o, libw ){
-	
-return function( _, parent, d, i  ){
-	// window structure
-	this.title  = "Wireshark - frame [ "+i+" ]";
-	this.width  = 800;
-	this.height = 500
-	this.top    = this.left = 350;
-	this.swind.close = ( this.swind.hide = 0 )+1;
-	
-	this.swind.parent = parent;
-	this.swind.free = 1;
-
-	this.output={
-	
-	__sectionTxt:("<section class='_w_box'></section><section class='_w_box'><div id='idf_'><div id='idf' class='dump_w_'></div></div></section>"),
-		
-	__main:function( _, parent, __data__  ){
-		var slf = this,
-		p   = this.getParent( ),
-		s = (p.opts.dump == 16 ? 1 : 0),
-		pcm = { };
-		
-		pcm = {
-			proto:[
-				["null:Hexdump x16:"+s+":1:Alt+b"],["null:Hexdump x32:"+(!(s)*1)+":1:Alt+b"]
-			],
-			t:this.hMain.child(".dump_w_")
-		};
-		req("LcontextMenu").contextMenu( pcm, pcm.t, pcm.proto );
-		pcm.contextMenu.click = function( ){
-			
-			this.proto[0][0] = "null:Hexdump x16:"+((p.opts.dump == 16 ? 1 : 0))+":1:Alt+b";
-			this.proto[1][0] = "null:Hexdump x32:"+((p.opts.dump == 32 ? 1 : 0))+":1:Alt+b";
-		};
-		pcm.contextMenu.event = function(_,s){
-				
-			libw.updateHexdump( 
-				p.data.frame[ p.selected ].packet,
-				( p.opts.dump = s == "0:0" ? 16 : 32 )
-			);
-		};
-
-	
-		libw.hexdump(
-			this.hMain.child(".dump_w_"),
-			__data__,
-			this.getParent( ).opts.dump
-		);
-		// KeyBoardInterrpt shortcut
-		this.on('keyboardInterrupt',function( _ ){
-			if( ( _.ctrl || _.alt ) && _.uint8 == 66 ){
-				
-				libw.updateHexdump( 
-					p.data.frame[ p.selected ].packet,
-					( p.opts.dump = p.opts.dump == 32 ? 16 : 32 )
-				);
-			}
-		});
-		//
-	return this;
-	},
-	
-	};
-return 1;
-};
-});
 
 
 
