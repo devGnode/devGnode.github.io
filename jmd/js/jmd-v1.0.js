@@ -218,21 +218,24 @@ markdown.extend({
 		this[1] = k[1];
 		this[3] = k[2];
 		this[5] = k[4];
-	
+		
+		k = null;
 		switch( this[1] ){
 		case "c": 
 		return markdown.node(
-			"span",this[3], 'style="color:'+(this[5]?this[5].trim( ):"")+'"'		
+			"span",this[3], 'style="color:'+(this[5]?this[5][0].trim( ):"")+'"'		
 		);
 		case "a":
 		return '<a href="'+this[5]+'">'+this[3]+'</a>';
 		break;
 		case "img":
-			var tmp;
-			if( this[5] && ( tmp = /(\d+|)\*(\d+|)(\s(left|right|center))/.exec( this[5] ) ) ){
-
-			}
-		return '<img src="'+this[3]+'">';
+			if( this[5] && (this[5]=this[5].split(",")) )	
+			k = this[5][0].reg(/(\s\d+\s|\d+|)\*(\s\d+\s|\d+|)/);;
+			
+		return  '<div class="pictnode"><div></div>'+ /*wrapper*/
+			'<img src="'+this[3]+'" '+ 	    /*node*/
+			'style="" onload="test0( this, '+( k && k[1].length > 0 ? "\'"+k[1].trim()+"\'" : null )+','+(  k && k[2].length > 0 ? "\'"+k[2].trim()+"\'" : null )+', '+( this[5] && this[5][0] ? 1 : 0 )+' )" >'+
+			'</div>';
 		break;
 		/*simple balise*/
 		case "sup":
