@@ -223,7 +223,7 @@ markdown.extend({
 		switch( this[1] ){
 		case "c": 
 		return markdown.node(
-			"span",this[3], 'style="color:'+(this[5]?this[5][0].trim( ):"")+'"'		
+			"span",this[3], 'style="color:'+(this[5]?this[5].trim( ):"")+'"'		
 		);
 		case "a":
 		return '<a href="'+this[5]+'">'+this[3]+'</a>';
