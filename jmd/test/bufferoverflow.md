@@ -28,7 +28,7 @@ Aussi pour son bon fonctionnnement lors de sont déroulement le programme aura d
 
 \sub#### La segmentation de la mémoire
 
-Lors du lancemement le programme sera segmenter en plusieur partie, une partie sera le code dit exécutable, une autre contient les variables ainsi de suite..., chaccun à ce sa petite zone de confort, et n'as pas de réelle intérêt à aller enpiéter chez sont voisin. 
+Lors du lancemement le programme sera segmenter en plusieur partie, une partie sera le code dit exécutable, une autre contient les variables ainsi de suite..., chaccun à ce sa petite zone de confort, et n'as pas de réelle intérêt à aller enpiéter chez sont voisin.
 
 box> Alors tous cette orchestre fonctionne comme une holorge suisse, mais voila de la rouille peut venir gripper le mécanisme et faire sauter la partition.    
 
