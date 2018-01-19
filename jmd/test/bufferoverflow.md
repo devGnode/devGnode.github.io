@@ -4,7 +4,7 @@
 
 Enormément répandu de nos jours sur internet, becaucoup de tutos plus ou moins explicatif alimente le sujet, ici nous allons pas **hacker** le FBI, mais comprendre ses rouages et ses fonctionnements. Très souvent les attack de type **buffer-overflow** descend d'un default de conception, ou une mauvaise gestion de la mémoire. Petite illustration *homemade* : 
 
-[img:./test/img/bob.png]
+[img:./test/img/bob.png](auto) 
 
 Ainsi d'une vue global, on peut représenter cette **attack** par cette image simplement, nous avons **Bob** qui est note boulanger préférer qui mis à notre disposition une cuve d'une contenace max de [c:10 litres](blue), bien entendu le patron de **Bob** à oublié de lui demandé de verifier chaque contenu qui va y être versé, donc chaccun est libre d'y verser ce que bon lui semble. Alors quand **Alice** vient y verser les 50 litres évidament la cuve déborde catastrophe, est comme cette eau est magique nous y avions mixer quelques molécules qui nous permettra d'hypnotiser **Bob** est de lui demander éxécuter quelques ordres lorsque celle-ci débordera.
 
@@ -28,26 +28,26 @@ Aussi pour son bon fonctionnnement lors de sont déroulement le programme aura d
 
 \sub#### La segmentation de la mémoire
 
-Lors du lancemement le programme sera segmenter en plusieur partie, une partie sera le code dit exécutable, une autre contient les variables ainsi de suite..., chaccun à ce sa petite zone de confort, et n'as pas de réelle intérêt à aller enpiéter chez sont voisin.
+Lors du lancemement le programme sera segmenter en plusieur partie, une partie sera le code dit exécutable, une autre contient les variables ainsi de suite..., chaccun à ce sa petite zone de confort, et n'as pas de réelle intérêt à aller enpiéter chez sont voisin. 
 
 box> Alors tous cette orchestre fonctionne comme une holorge suisse, mais voila de la rouille peut venir gripper le mécanisme et faire sauter la partition.    
 
 Revenons à nos function **strcpy** est regardons le code ci-dessous :
 
-[img:./test/img/vulcpp.png]
+[img:./test/img/vulcpp.png]( auto ) 
 
 il existe pas plus basic deux function le **main** et **buffer_cpy** analysons **buffer_cpy** la function alloue un buffer de [c:\[160\]](blue) ***(bytes)*** caractères, appelle la function **strcpy** qui va copier la chaine passé en arguments *(tmp)*  dans le buffer *(cbuf)* puis l'afficher à écran.
 
 la function **main** récupère la chaîne de caractère entré par utilisateur puis appelle la function  **buffer_cpy**, nous avons vu que le buffer d'acceuil est relativement faible, la function ne vérifie pas la taille de la chaine reçus et que **strcpy** fait de même. Alors quand on rentre une chiane supérieur à 160 caractère comment réagi **Roger**, cela rappelera des souvenirs notamenet sur **windows XP**. 
 
-[img:./test/img/vul.png]  
+[img:./test/img/vul.png]( auto )
 
 \sub###Ou est-ce que sa coince ?
 
 A l'époque j'utiliser **OllyDBG** ou **win32asm/winDasm** *(RIP)* tuto n'est pas jeune, mais est un bon moyen de comprendre, ouvrons donc **OllyDBG** 
 et cherchons la function **buffer_cpy** :
 
-[img:./test/img/fct_cpy.png]
+[img:./test/img/fct_cpy.png](auto)
 
 |: Address Mémoire :|: comments :|
 |: [tt:x00401334] |: Entré de la function, stock l'addresse de la pile sur la pile |
@@ -127,7 +127,7 @@ Bon voila vous allez me dire la machine à planter quels sont les rique réels ?
 \\
 
 \sub####l'injection en cours éxécution *(Metasploit)* : 
-[img:./test/img/exec.png] 
+[img:./test/img/exec.png]( auto ) 
 
 ###Les Shellcodes
 
@@ -146,7 +146,7 @@ Alors dans les 80's, les **os** mappé en mémoire leurs librairies toujours au 
 
 Mais pour compliquer cette tâche les ingénieurs ont décidé de randomiser tous cela, et de mapper ces librairies en mémoire à des addresses aléatoire à chaque redémarrage de **Roger**, ce qui rend la tâche bien plus hardue que dans les eighteen's. Pour windows une méthode existe qui consiste à remonter la Structure du **PEB/TEB** via le segment **FS**. Bien évidamment pour ma part je me suis pas trop foulé la pomme j'ai opté pour cette méthode :
 
-[img:./test/img/offsetdll.png]
+[img:./test/img/offsetdll.png]( 837 * , auto )
 
 box> :warning: [c:Attention un shellcocde ne doit en auccun cas comporter de valeur \x00](red) 
  
@@ -174,5 +174,4 @@ box> :warning: [c:Attention un shellcocde ne doit en auccun cas comporter de val
 	section .data
 	calc db "calc.exe",0
 \\
-
 
