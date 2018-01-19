@@ -1,0 +1,243 @@
+<html>
+	<head>
+	<script src="./js/jno2.js"></script>
+	<script src="./js/jmd-v1.0.js"></script>
+	<link rel="stylesheet" media="all" href="./css/mddesign.css">
+	<meta charset="UTF-8">
+	</head>
+<style>	
+
+</style>
+<body>
+
+<div class="markdownboard" id="main">
+
+	
+	<div id="md">
+	</div>
+
+	<div style="background:#fafafa; padding:10px;">
+	
+<textarea style="outerline:0; border:0; width:100%; height:500px; background:#202020; color:#d2d200; resize:none;"># Quick Markdown JS v1. :fr:
+
+L' **API $jmd.js$** et un ptit module en javascript qui permet d'émuler rapidement diverse balise en **Markdown** ou en **Mini BBcode**. Pour sont bon fonctionement **API ** à bessoin de la dépendance suivante :
+
+	* **jno2.js** → [a: Here](https://github.com/devGnode/jno2) ( [c::warning: **gnode** is decprecated](red) ).
+	* ** mddesign.css **
+
+\sub## Aborescence  
+
+
+	* jmd
+		* css
+			* mddesign.css
+		* js
+			* jmd.js
+			* jno2.js
+		* Emojis
+			* \*.\* fichier  png
+		* ttf
+			* \*.\* fichier ttf
+
+:warning: Pour le moment sont utilisation reste strictement réverser pour une utilisation admin, c'est à dire auccun user ne doit pouvoirs utiliser cette **API** qui n'est pas protèger contre les failles **d'Injection XSS**.
+  
+##:one: Text Area
+
+\sub###Text Format
+
+|: Selector :|: type :|
+|: \* |  *Italic* |
+|: \*\* |  **Bold** |
+|: \*\*\* |  ***Italic/Bold*** |
+|: \$ |  $underline$ |
+|: \$\$\$ |  $$underline$$ |
+|: \$\$\$ |  $$$underline$$$ |
+
+
+
+\sub###Titles
+
+box> #Un title grande taille 
+
+|: Selector :|: type :|
+|: # |  h1 |
+|: ## |  h2 |
+|: ### |  h3 |
+|: #### |  h4 |
+|: ##### |  h5 |
+|: ###### |  h6 |
+
+Pour afficher certains caractères dans du text, il faudrat y placer un slash  ** \ ** devant. Les cractères concerner sont 
+ 
+box> \* \$ \[ \] \% \: 
+
+##:two: Mini BBcode
+
+Les mini balises **bbcode**
+
+box>\[ **baliseName** \: **Argument A** \]( **Argument B** )
+
+|: Balise :|: argumets A :|: argumets B :|: Example :|
+|: c |:  text :|: color :| [c:Some text](blue) |
+|: a |:  text :|: url :| [a:link google](https://google.fr) |
+|: sup |:  text :|: [c:NULL](red) :| 5[sup:**x**-12] |
+|: sub |:  text :|: [c:NULL](red) :| 5[sub:128] |
+|: img |:  url :|: \* width or height \* or height \* width :| [img:./emojis/one.png] |
+|: tt |:  text :|: [c:NULL](red) :| [tt:Some text] |
+|: v |:  text :|: [c:NULL](red) :| [v:Some text] |
+|: code |:  text :|: [c:NULL](red) :| [code:Some text] |
+|: code |:  text :|: [c:NULL](red) :| [code:Some text] |
+|: atob |:  text64 :|: [c:NULL](red) :| [atob:U29tZSB0ZXh0] |
+|: btoa |:  text :|: [c:NULL](red) :| [btoa:Some text] |
+|: vscanf |:  parser :|: argument,argument,... :| [vscanf:char **'%c'** hex 0x%h bin %b ]( 97, 255, 15 ) |
+
+\sub### vscanf 
+
+**vscanf** est une function native de l'API **jno2**
+
+
+|: parser :|: type :|: argumets :|:  result :|
+|:*\%c* :|: character :| String , Integer | [vscanf:String → %c Int → %c ](azer, 98 ) |
+|:*\%i* :|: Number :| String , Integer | [vscanf:String → %i  Int → %i ](foo, 97 ) |
+|:*\%b* :|: Binary :|  Integer, String | [vscanf:Int → %b String → %b ]( 255,foo) |
+|:*\%h* :|: Hexadecimal :|  Integer, String | [vscanf:Int → 0x%h String → 0x%h ]( 65534,foo) |
+|:*\%o* :|: Octal :|  Integer, String | [vscanf:Int → %o String → %o ]( 255,foo) |
+
+
+##:three: Var
+
+@TEST Ceci est un Test
+
+On peut cree des variables grâce @ suivant de sont nom en **$Majuscule$**
+
+box> @**VARNAME** *contenu*
+
+Utiliser le contenu de la variable **\%** suivit de sont nom
+
+box>  \% TEST →**%TEST**
+
+##:four: Boxes
+
+balise → **Name>** some text
+
+|: Name :|: color :|
+| silver :| silver |
+| box :| yellow |
+
+box> My box
+
+silver> My silver box
+
+##:five: List
+
+Pour creer des list items
+
+	* items0
+	* and **items2** [sup:x-2]
+		* subitems0
+			* subitems1
+	* $items3$
+
+silver> TABULATION * some text
+silver> TABULATION TABULATION * some text
+
+##:six: Les Tableaux
+
+Pour créer un tableaux le selecteur \| sera neccessaire 
+
+|: selecteur :|: example de l'alignement intérieur :|
+|: \| some text \| | some text right [tt:*default*] |
+|: \|\: some text left \| |: some text left |
+|: \|\: some text center \:\| |: some text center :|
+
+##:seven: Emojis
+
+Les selector pour les emojis &rarr; \:**Nom de l'image**\: 
+
+silver> :one: :two: :dollar: :airplane: 
+
+Tous les Emojis sont a cette addresse : [a:emoji-cheat-sheet](https://www.webpagefx.com/tools/emoji-cheat-sheet/)
+
+
+##:eight: Programmer
+
+**Linux** bourne shell balise → **\shell**
+
+\shell
+root@shell ~: nmap -sS google.fr
+Starting Nmap 6.00 ( http://nmap.org ) at 2017-03-09 03:53 EET
+Initiating Ping Scan at 03:53
+Scanning google.fr (216.58.212.67) [4 ports]
+Completed Ping Scan at 03:53, 0.04s elapsed (1 total hosts)
+Initiating SYN Stealth Scan at 03:53
+
+\\
+
+**MSDOS** console balise → **\msdos**
+
+\msdos
+Microsoft Windows [Version 10.0.00]
+(c) 2018 Microsoft Corporation, All rights reserved.
+
+C:\users\Admin>
+\\
+
+Puis on ferme la lige avec la balise  ** \\ **
+
+\sub## Prototype 
+
+pour creer un ptotoype d'une function balise → **\prototype** proto....
+
+\prototype Struct Name{ NUMBER x , String name , Pointer * d } * foo;
+
+box> \prototype Struct Name{ NUMBER x , String name , Pointer \* d } \* foo;
+
+add balise **box>** and prototype
+silver>\prototype void Name( NUMBER adfd , String bddfd , Pointer * d )
+
+lool [btoa:comment sa vas] et [code:[atob:Y29tbWVudCBzYSB2YXM8L3NwYW4+]]
+
+\sub### Hexdump
+
+silver> \hexdump base64( votre frame ou text ) 
+
+
+\hexdump azasssqsqsqzazazkmlkzmkamkzmkamkzmakzmkmakzmkzak 
+
+
+
+
+</textarea>
+	<button onclick="test(this);" >Save</button>
+	s</div>
+</div>
+
+<script>
+
+jno2("textarea").on("keypress",function( e ){
+	var k = e.keyCode ? e.keyCode : e.charCode;
+	console.log( k );
+	if( k == 9 ){
+		jno2("textarea").val("\x09",1);;
+		e.preventDefault( );
+	}else
+	jmd({ input: jno2("#md"), edit: jno2("textarea") });;
+
+});
+function test( a ){
+	jmd({ input: jno2("#md"), edit: jno2("textarea") });
+
+}
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
