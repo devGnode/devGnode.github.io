@@ -214,6 +214,12 @@ silver> \hexdump base64( votre frame ou text )
 
 <script>
 
+function test0( _, w, h, a ){
+	
+	jno2( _ ).getParent( ).css({ width:( w || _.width | "" ), height:( h || _.height || "" ), margin:( a ? "auto" : "" ), display:"block" });
+	jno2( _ ).css({width:"100%",height:"100%"});
+}
+
 jno2("textarea").on("keypress",function( e ){
 	var k = e.keyCode ? e.keyCode : e.charCode;
 	console.log( k );
@@ -221,13 +227,14 @@ jno2("textarea").on("keypress",function( e ){
 		jno2("textarea").val("\x09",1);;
 		e.preventDefault( );
 	}else
-	jmd({ input: jno2("#md"), edit: jno2("textarea") });;
+	;;//jmd({ input: jno2("#md"), edit: jno2("textarea") });;
 
 });
 function test( a ){
 	jmd({ input: jno2("#md"), edit: jno2("textarea") });
 
 }
+jmd({ input: jno2("#md"), edit: jno2("textarea") });
 </script>
 
 </body>
