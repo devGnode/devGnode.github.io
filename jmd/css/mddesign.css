@@ -1,0 +1,72 @@
+	@font-face{ font-family:systemB; src: url(".././ttf/Ubuntu-L.ttf"); }
+	@font-face{ font-family:konsole; src: url(".././ttf/UbuntuMono-R.ttf"); }
+	@font-face{ font-family:msdos; src: url(".././ttf/MorePerfectDOSVGA.ttf"); }
+	body{ font-family:systemB; margin:0; padding:0; }
+	
+	#main{
+		margin:auto; width:66%; box-shadow:1px 4px 20px 1px #000
+	}
+	#md{ padding:25px; }
+	/*title*/
+	#md .tt1{ font-size:36px; font-weight:bold; }
+	#md .tt2{ font-size:24px; font-weight:bold; }
+	#md .tt3{ font-size:20px; font-weight:bold; }
+	#md .tt4{ font-size:18px; font-weight:bold; }
+	#md .tt5{ font-size:14px; font-weight:bold; }
+	#md .tt6{ font-size:11px; font-weight:bold; }
+	#md .under{ text-decoration:underline; }
+	#md .stroke{ text-decoration: line-through; }
+	#md .over{ text-decoration: overline; }
+	#md .part{ color:#afafaf; display:inline-block; padding:5px; width:100%; border-bottom: 1px solid #17b617; }
+	#md .subpart{ color:#afafaf; display:inline-block; padding:5px; width:100%; text-decoration:underline; margin: 0 5px; }
+	
+	#md p{ color:#444444; text-align:justify; font-size:14px;
+		   padding: 10px 10px; margin:0; line-height:22px; 
+		   width:95%;
+		}
+	#md .msdos{ font-family:msdos } #md .shell{ font-family:konsole }
+	#md .msdos, .shell, .box, .silver{ background:#ffec9a; border:1px solid #1fdf1f; 
+			  margin:5px auto; padding:5px; font-size:12px; width:85%; max-width:860px;
+			}
+	#md .silver{ background:#fefefe; }
+	#md .shell{ background:rgb(44, 0, 30); border-radius:3px; -webkit-border-radius:3px; -moz-border-radius:3px;
+		font-family:konsole; color:#d2d200; padding:5px; white-space:pre-line;
+	}
+	#md .msdos{ background:#222222; border-radius:3px; -webkit-border-radius:3px; -moz-border-radius:3px;
+			 font-family:msdos; color:#fff; font-size:13px; padding:5px; white-space:pre-line;
+			}
+	#md .blockQ{
+			background:#d2691e; padding-left:5px;
+		}
+	#md .blockQ div{
+			background:#f0f0f0; color:#55a9a9; width:100%; overflow:hidden; text-overflow:ellipsis;
+		}
+	#md .code{ background:#ececec; padding:2px; border:1px solid #ffd9d9; font-size:12px; font-family: Trebuchet MS; }
+	#md .versus{ vertical-align:5px; padding: 1px 5px 1px 2px; 
+				background:#0075d2; border:1px solid #c0c0c0; font-weight:bold; 
+				font-size:14px; display:inline-block; color:#fff; text-shadow:0.5px 0.5px .5px #000;
+				-webkit-border-radius:3px;
+				}
+	#md section.select{
+		border-left:1px solid transparent;
+	}
+	#md section.select:hover{
+		border-left:0 solid #AA0000;
+		border-width: 1px 0 0 1px;
+	}
+	
+	#md table{ border:1px solid #ececec;margin:5px; }
+	#md table td{ padding:8px; border-top:1px solid #e6faff;   }
+	#md .peert{ background:#99ebff; } #md .peertd{ background:#e6faff }
+	.alignc{ text-align:center; } .aligncl{ text-align:left; } .alignr{ text-align:right; } 
+
+	#md .emojis{ width:25px; height:25px; background-repeat:no-repeat; background-size:25px auto; display:inline-block;}
+	#md ul.proto{font-family:konsole; font-size:14px; list-style-type:none;} 
+	#md ul.list li{ padding:2px;  }
+	li{ position:relative; line-height:19px; }
+
+	#hexdump td.addr{ background:#cecece; text-align:center; width:50px;font-size:12px;}
+	#hexdump td.h{ width:28px; height:28px !important; text-align:center; cursor:pointer;font-size:12px; font-weight:bold;  }
+	#hexdump td.h:hover{background:#ffff00;}
+	#hexdump td{ margin:0;padding:0;}
+	#hexdump td.ascii{ font-size:10px; overflow:hidden; width:15px; height:15px; text-align:center;margin:0;padding:0;}
