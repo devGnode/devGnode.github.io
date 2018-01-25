@@ -529,6 +529,7 @@ jno2.extend( jno2.node.prototype,
 
 	made:function( a, b ){
 	return this.each( function( hdl ){
+		console.log(a, b );
 		jno2.made( 
 			hdl,
 			a, b 
@@ -971,7 +972,7 @@ return{
 /**/
 function __gtype( a, b ){
 return typeof a === "number" ? "number" :
-	typeof a === "string" && /^([\dabcef]{1,2})*$/.test( a ) ?
+	typeof a === "string" && /^\x\?([A-Z0-9]{2,})*$/.test( a ) ?
 	"hex" : "string";
 }
 jno2.vscanf = function( ){
@@ -1036,7 +1037,7 @@ return parse.exec( this.valueOf( )  );
 };
 
 jno2.regexp = function( reg, value, callback, hptr ){
-	var i = 1, k;
+	var i = 1, k, tmp;
 	try{
 		while( ( tmp = reg.exec( value ) )  && i < 1000 ){
 
