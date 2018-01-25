@@ -76,6 +76,12 @@ markdown.extend({
 					).replace(/\x9aa/, (o=d.getTime( )).length == 1 ? "0"+o : o
 				);	 
 				},
+				lang:function( ){
+				return markdown.parseTextElements( {},
+					markdown.parseBBc( {},
+					"[size:**\("+this[3].toLowerCase().slice(0,2)+"\)**](10)"
+				) );
+				},
 			},		
 		},
 		/*
@@ -188,7 +194,7 @@ markdown.extend({
 	/* parse :emojis:*/
 	parseEmojis:function( slf, __text__ ){
 		var a,b,c,t;
-	return jno2.regexp( /\:([\w_]+)\:/, __text__, function( slf ){
+	return jno2.regexp( /\:([\w_\+]+)\:/, __text__, function( slf ){
 		return markdown.span( 'emojis" style="background-image:url(\'./emojis/'+this[1]+'.png\');', "" );
 		}, slf );
 	},
@@ -273,6 +279,7 @@ markdown.extend({
 		this[3] = k[2];
 		this[5] = k[4];
 		
+
 		k = null;
 		/*attribut*/
 		if( ( k  = markdown.replace.bbc.attr[ this[1] ] ) )
@@ -365,7 +372,7 @@ markdown.extend({
 			ptr.break = true;
 			ptr.stack = [line];
 			ptr.code  = 2;
-		
+	
 		/*end table*/
 		}else if( ptr.break && !line.reg( /^\|(.*)\|$/ ) && ptr.code == 2 ){
 			ptr.break = !1;
@@ -378,10 +385,11 @@ markdown.extend({
 		}else if( ptr.break && line.reg( /^\\\\$/ ) && ptr.code ){
 			var tp, k = "fdf";
 			
-			if( ( tp = markdown.replace.code ).indexOf( ptr.code ) > -11 )
+
+			if( ( tp = markdown.replace.code ).indexOf( ptr.code ) > -1 )
 			k="<div class='"+ptr.code+"'><div class='sh'>"+ptr.stack.join("\r\n").replace(/</g,"&lt;").replace(/>/g,'&gt;')+"</div></div>";
 			else if( markdown.replace.jcsript[ ptr.code ] )		
-			k = '<div class="cscript"><div class="sh">'+ asmSpec(  ptr.stack.join("\r"), ptr.code ) +'</div></div>';;
+			k = '<div class="cscript"><div class="sh">'+ cscript(  ptr.stack.join("\r"), ptr.code ) +'</div></div>';;
 			
 
 			ptr.break = !1;
