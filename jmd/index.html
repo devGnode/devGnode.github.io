@@ -80,6 +80,8 @@ box>\[ **baliseName** \: **Argument A** \]( **Argument B** )
 
 |: Balise :|: argumets A :|: argumets B :|: Example :|
 |: c |:  text :|: color :| [c:Some text](blue) |
+|: size |:  text :|: number :| \[size\:H\]\(20\)[size:H](25)ello |
+|: lang |:  text :|: [c:NULL](red) :| Thank[lang:en], Danke[lang:de] |
 |: a |:  text :|: url :| [a:link google](https://google.fr) |
 |: sup |:  text :|: [c:NULL](red) :| 5[sup:**x**-12] |
 |: sub |:  text :|: [c:NULL](red) :| 5[sub:128] |
@@ -153,7 +155,7 @@ Pour créer un tableaux le selecteur \| sera neccessaire
 
 ##:seven: Emojis
 
-Les selector pour les emojis &rarr; \:**Nom de l'image**\: 
+Les selector pour les emojis → \:**Nom de l'image**\: 
 
 silver> :one: :two: :dollar: :airplane: 
 
@@ -185,6 +187,30 @@ C:\users\Admin>
 
 Puis on ferme la lige avec la balise  ** \\ **
 
+Pour afficher des codes ouverture de la balise  **\NameOfLanguage*** vous devez inclure, la library **jcscript.js** pour être fonctionnelle.
+
+
+\css
+	@font-face{ font-family:systemB; src: url(".././ttf/Ubuntu-L.ttf"); }
+	@font-face{ font-family:konsole; src: url(".././ttf/UbuntuMono-R.ttf"); }
+	@font-face{ font-family:msdos; src: url(".././ttf/MorePerfectDOSVGA.ttf"); }
+	body{ font-family:systemB; margin:0; padding:0; }
+	
+	#main{
+		margin:auto; width:66%; box-shadow:1px 4px 20px 1px #000;
+	}
+
+\\
+
+|: language :| enabled :|
+|: Raw |: [c:true](green) |
+|: css |:  [c:true](green) |
+|: cpp |: [c:true](green) |
+|: c |: [c:true](green) |
+|: asm intel |: [c:true](green) |
+|: html |: [c:false](red) |
+|: js |: [c:false](red) |
+
 \sub## Prototype 
 
 pour creer un ptotoype d'une function balise → **\prototype** proto....
@@ -208,17 +234,11 @@ silver> \hexdump base64( votre frame ou text )
 
 
 
+
 </textarea>
 	<button onclick="test(this);" >Save</button>
 	s</div>
 </div>
-
-<div  class="cc output">
-<div class="sh"></div>
-</div>
-<textarea style="height:400px;width:1000px;">
-
-</textarea>
 
 
 <script>
@@ -238,17 +258,8 @@ function test( a ){
 	jmd({ input: jno2("#md"), edit: jno2("textarea") }).load( );
 
 }
-jmd({ input: jno2("#md"), edit: jno2("textarea") }).load( );
-
-
-jno2("textarea").eq(1).on("keyup",function( ){
-
-jno2(".output").next( ).val( asmSpec.make( jno2( this ).val( ) ) );
-
-});
-
-
-
+test( );
+	
 </script>
 
 </body>
