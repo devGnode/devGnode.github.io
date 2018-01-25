@@ -374,7 +374,7 @@ markdown.extend({
 			ptr.stack
 		);
 		
-	* **Alice** *CA* &rarr; 10e &rarr; **Julie** *BNP*	
+		
 		}else if( ptr.break && line.reg( /^\\\\$/ ) && ptr.code ){
 			var tp, k = "fdf";
 			
