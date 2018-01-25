@@ -1,5 +1,25 @@
-(function( slf, jno2 ){
+/*
+ little API Markdown interpretor in Javascript
+ language, he translate markdown language to
+ html text.
 
+ just put this id name 
+ <div id="md"></div>
+
+ this code is under licence GPL
+ write   : мародер потока
+ version : 1.00.0
+ last up : 2017-01
+
+*/
+(function( slf, jno2 ){
+/*
+ opts{
+  edit: node
+  text: input text
+  output: node
+ }
+*/
 var markdown = function( opts ){
 return new markdown.init( opts );
 };
@@ -9,54 +29,116 @@ markdown.extend({
 	
 	
 	replace:{
+		// pvt
 		1:"<i>",2:"<b>",3:"<i><b>",
 		class:{
 			1:"under",
 			2:"stroke",
 			3:"over"
 		},
+		// can be extenced
 		bbc:{
+			attr:{
+				/*
+				 command:"style %c ..." 
+				 %c -> argumen receive by markdown parsing 
+				*/
+				c:"color:%c;",
+				size:"font-size:%c;display:inline-block;",
+			},
 			/*
-			* put classcname like
-			* baliseName:"className"
+			 simple tag like <%c> %c <%c>
 			*/
-			v:"versus",
-			code:"code",
-			/*
-			* ...
-			*/			
+			html:["sup","sub","tt"],
+			class:{
+				/*
+				 ut classcname like
+				 baliseName:"className"
+				*/
+				v:"versus",
+				code:"code",
+				/*
+				 ...
+				*/
+			},
+			callback:{
+				img:0,vscanf:0,
+				atob:0,btoa:0,
+				a:function( ){
+				return '<a href="'+this[5]+'" target="1">'+this[3]+'</a>';
+				},
+				time:function( ){
+				var d = new Date( ),o;
+				return ( this[3] && this[3].length > 0 ? this[3] : "\x9ba" ).replace(
+					/\x9bh/, d.getHours( )
+					).replace( /\x9bm/,  (o=d.getMinutes( )).length == 1 ? "0"+o : o
+					).replace( /\x9bs/, (o=d.getSeconds( )).length == 1 ? "0"+o : o
+					).replace(/\x9aa/, (o=d.getTime( )).length == 1 ? "0"+o : o
+				);	 
+				},
+			},		
 		},
+		/*
+		 className Box
+		*/
+		box:[
+			"box","silver" //...
+		],
+		code:["shell","msdos"],
+		jcsript:{
+
+		/*
+		 if jcscript is loaded to js 
+		 you must indicate languages names  
+		 ...here
+		*/	/*default*/
+			raw:true,js:true,c:true,cpp:true,css:true
+		},
+		module:["prototype","hexdump"],
+	},
+
+	extendReplace:function( a, b,c ){
+		argumennts.length == 2 && jno2.isArray( b ) ?
+		jno2.extend( this.replace.bbc[a] , b ):
+		this.replace.bbc[a][ b ] = c;
+	return this;
 	},
 	/*
-	* all selector like \X
-	* *,$,[,],:,%,|
+	* reolace all them selector into string like this \x
+	  selector : *,$,[,],:,%,|,(,),&,%,',"
+	 sometimes you have need to use some special characters
+	 who're used by jcscript as tag, so for use this character
+	 '\' who would be put down in front of each one of them for
+	 be display correctly and do not minged with a tag.
 	*/
 	parser:{
-	255:{
-	h:"\255",c:"*",p:(/(\\\*)/g),r:(/(\255)/g),
-	},
-	254:{
-	h:"\254",c:"$",p:(/(\\\$)/g),r:(/(\254)/g),
-	},
-	253:{
-	h:"\253",c:"[",p:(/(\\\[)/g),r:(/(\253)/g),
-	},
-	252:{
-	h:"\252",c:"]",p:(/(\\\])/g),r:(/(\252)/g),
-	},
-	251:{
-	h:"\251",c:":",p:(/(\\\:)/g),r:(/(\251)/g),
-	},
-	250:{
-	h:"\250",c:"%",p:(/(\\\%)/g),r:(/(\250)/g),
-	},
-	249:{
-	h:"\249",c:"|",p:(/(\\\|)/g),r:(/(\249)/g),
-	},
+	255:{h:"\255",c:"*",p:(/(\\\*)/g),r:(/(\255)/g),},
+	254:{h:"\254",c:"$",p:(/(\\\$)/g),r:(/(\254)/g),},
+	253:{h:"\253",c:"[",p:(/(\\\[)/g),r:(/(\253)/g),},
+	252:{h:"\252",c:"]",p:(/(\\\])/g),r:(/(\252)/g),},
+	251:{h:"\251",c:":",p:(/(\\\:)/g),r:(/(\251)/g),},
+	250:{h:"\250",c:"%",p:(/(\\\%)/g),r:(/(\250)/g),},
+	249:{h:"\249",c:"|",p:(/(\\\|)/g),r:(/(\249)/g),},
+	/*
+	i've lost... so for avoid any trouble
+	i've start again to 203 ^^
+	*/
+	230:{h:"\230",c:"(",p:(/(\\\()/g),r:(/(\230)/g),},
+	231:{h:"\231",c:")",p:(/(\\\))/g),r:(/(\231)/g),},
+	232:{h:"\232",c:"&",p:(/(\\\&)/g),r:(/(\232)/g),},
+	233:{h:"\233",c:"%",p:(/(\\\%)/g),r:(/(\233)/g),},
+	234:{h:"\234",c:"\"",p:(/(\\\")/g),r:(/(\234)/g),},
+	235:{h:"\235",c:"\'",p:(/(\\\')/g),r:(/(\235)/g),},
+	/*
+	 replace all elements
+	 string __data__ to parser
+	 bool type 0 -> \* -> \xxx
+	 bool type 1 -> \xx -> \*
+	 @return string data 
+	*/
 	replace:function( __data__, type ){
 	jno2.each( this, function( h ){
 		if( jno2.isArray(  h ) ){
-			
 			__data__ = __data__.replace(
 				type ? h.r : h.p,
 				type ? h.c : h.h
@@ -66,14 +148,15 @@ markdown.extend({
 	return __data__;
 	}
 	},
-
-	/*explode text*/
+	
+	/*explode some text*/
 	explode:function( __asm__ ){
 	return __asm__.split( /(\n)+/.test( __asm__ ) ?
 			"\n" : /(\r\n)+/.test( __asm__ ) ? 
 			"\r\n" : "\r"
 		);
 	},
+
 	/*retur overflow*/
 	overflow:function( char, size ){
 	return char.length > size ? ( char.length % size ) == 0 ? 
@@ -81,6 +164,7 @@ markdown.extend({
 	},
 	/*create TEXTHTML*/
 	node:function( balise, inner, attr ){
+	inner = new String( inner ).toString( );
 	return jno2.vscanf(
 		"<%c"+(attr?" %c":"")+">%c</%c>",
 		balise,
@@ -91,51 +175,17 @@ markdown.extend({
 	},
 	span:function( classn, inner ){
 	return markdown.node(
-		"span", new String(inner), 'class="'+classn+'"'
+		"span",inner, 'class="'+classn+'"'
 	);
 	},
 
 	/*parseVar %foo */
 	parseVar:function( slf, __text__ ){ 
 	return jno2.regexp( /\%([A-Z\_]+)/, __text__, function( slf ){
-	return slf.link[ this[1] ] ? slf.link[ this[1] ] : "%"+this[1];
+	return slf.link[ this[1] ] ? slf.link[ this[1] ] : "\233"+this[1]; // ? \233 or %
 	}, slf );
-	},	
-	
-	/*
-	# parseBasic
-	* text * = italic
-	** text ** = bold
-	*** text *** = italic bold
-
-	$ text $ = underline
-	$$ text $$$ = stroke
-	$$$ text $$$ = overline
-	#
-	*/
-	parseTextElements:function( slf, __text__ ){
-		var a,b,c,t;
-	return jno2.regexp( /((\*+)(.*?)(\*+)|(\$+)(.*?)(\$+))/, __text__, function( slf ){
-
-		a = this[2] ? /\*/g : /\$/g;
-		b = this[2] ? "\255":"\254";
-		
-
-		return ( ( this[2] || this[5] ).replace( a,b ).slice( 3,( this[2] || this[5] ).length )+
-			 (this[2] ? 
-			  jno2.vscanf(
-			   "%c%c%c", 
-			   ( c = markdown.replace[ markdown.overflow( this[2], 3 ) ] ),
-			   this[3],
-			   c.replace(/</g,"</") 
-			) :  markdown.span( 
-				markdown.replace.class[ markdown.overflow( this[5], 3 ) ],
-				this[6] 
-			) )+
-			 ( this[4] || this[7] ).replace( a,b ).slice( 3,( this[4] || this[7] ).length ) );
-		}, slf );
 	},
-
+	/* parse :emojis:*/
 	parseEmojis:function( slf, __text__ ){
 		var a,b,c,t;
 	return jno2.regexp( /\:([\w_]+)\:/, __text__, function( slf ){
@@ -143,16 +193,6 @@ markdown.extend({
 		}, slf );
 	},
 
-	vscanf:function( argv ){
-		jno2.each( argv, function( v, i ){
-			argv[ i ] = /\d+/.test( v ) && !isNaN( parseInt( v ) ) ?
-			parseFloat( v ) : v;
-		});
-	return jno2.vscanf.apply(
-		null,
-		argv
-	);
-	},
 	/*
 	* <test0<test0r152>testo12589>
 	* |_____X_________X__________| OK
@@ -183,6 +223,20 @@ markdown.extend({
 	},
 	parseBBc:function( slf, __text__ ){ 
 	var k;
+	/*
+		 **
+	         /\
+		/  \
+	       /.   \
+	      /.     \
+	     /.  ||   \ 
+	    /.   ||    \
+	   /.    ..     \
+	  /.     ..      \
+	 /..............  \
+	 *================*
+	       |    |
+	*/
 	// parsor deprecated
 	// he just used as index indicator
 	// when he going to find the selector
@@ -220,76 +274,136 @@ markdown.extend({
 		this[5] = k[4];
 		
 		k = null;
-		switch( this[1] ){
-		case "c": 
+		/*attribut*/
+		if( ( k  = markdown.replace.bbc.attr[ this[1] ] ) )
 		return markdown.node(
-			"span",this[3], 'style="color:'+(this[5]?this[5].trim( ):"")+'"'		
-		);
-		case "a":
-		return '<a href="'+this[5]+'">'+this[3]+'</a>';
-		break;
-		case "img":
-			if( this[5] && (this[5]=this[5].split(",")) )	
-			k = this[5][0].reg(/(\s\d+\s|\d+|)\*(\s\d+\s|\d+|)/);;
-			
-		return  '<div class="pictnode"><div></div>'+ /*wrapper*/
-			'<img src="'+this[3]+'" '+ 	    /*node*/
-			'style="" onload="test0( this, '+( k && k[1].length > 0 ? "\'"+k[1].trim()+"\'" : null )+','+(  k && k[2].length > 0 ? "\'"+k[2].trim()+"\'" : null )+', '+( this[5] && this[5][0] ? 1 : 0 )+' )" >'+
-			'</div>';
-		break;
-		/*simple balise*/
-		case "sup":
-		case "sub":
-		case "tt" :
+			"span",								// NodeName
+			new String( this[3] ).toString( ), 				// inner
+		 	'style="'+jno2.vscanf( k, (this[5]?this[5].trim( ):"") )+'"'	// attributStyle
+		
+		); // html simple balise
+		else if( ( k  = markdown.replace.bbc.html.indexOf( this[1] ) ) > -1 )
 		return markdown.node( 
-			this[1],
-			this[3],
+			markdown.replace.bbc.html[k],
+			new String( this[3] ).toString( ),
 			this[5]
-			);
-		break;
-		case "vscanf":
-		return markdown.vscanf( [this[3]].concat( this[5].split(",") ) )
-		break;
-		/*balise with class*/
-		case "v":
-		case "code":
-		case "atob":
-		case "btoa":
-	
-		try{ this[1] == "atob" || this[1] == "btoa" ?
-		this[3] = window[ this[1] == "atob" ? "atob" : "btoa" ]( this[ 3 ] ) : void 0; }catch(e){};
+		);
+		else if( ( k  = markdown.replace.bbc.class[ this[1] ] ) )
 		return markdown.span( 
-			markdown.replace.bbc[ this[1] ] ?
-			markdown.replace.bbc[ this[1] ] : "",
+			k,
 			this[3]
-			);
-		break;
-		default:
+		);
+		else if( typeof ( k  = markdown.replace.bbc.callback[ this[1] ] ) == "function" ){
+			var _t;
+		return ( _t = k.call( this ) ) && _t.length > 0 ? _t : "";
+		}else ;
 		return "";
-		break;
-		}
+
+		/*
+		* unnknow tag this[1] at line : slf.line
+		*/
+
 	}, slf );
 	},
-	
+
+	/*
+	 selector * and #
+	*/
+	parseTextElements:function( slf, __text__ ){
+		var a,b,c,t;
+	return jno2.regexp( /((\*+)(.*?)(\*+)|(\$+)(.*?)(\$+))/, __text__, function( slf ){
+
+		a = this[2] ? /\*/g : /\$/g;
+		b = this[2] ? "\255":"\254";
+		
+
+		return ( ( this[2] || this[5] ).replace( a,b ).slice( 3,( this[2] || this[5] ).length )+
+			 (this[2] ? 
+			  jno2.vscanf(
+			   "%c%c%c", 
+			   ( c = markdown.replace[ markdown.overflow( this[2], 3 ) ] ),
+			   new String( this[3] ).toString( ),
+			   c.replace(/</g,"</") 
+			) :  markdown.span( 
+				markdown.replace.class[ markdown.overflow( this[5], 3 ) ],
+				this[6] 
+			) )+
+			 ( this[4] || this[7] ).replace( a,b ).slice( 3,( this[4] || this[7] ).length ) );
+		}, slf );
+	},
+
+	/*
+	 pparse global : var, bbcode, emojis selector, text selector
+	 @return string __text__
+	*/
 	parseGlobalText:function( ptr, __text__ ){
 	return markdown.parseTextElements( ptr, 
 		markdown.parseEmojis( ptr, 
 			markdown.parseBBc( ptr,
-				 markdown.parseVar( ptr,
+			markdown.parseVar( ptr,
 					__text__
 				)
 			)
 		)		
 	);
 	},
-	/**/
+	
 	parseLine:function( ptr, line ){
 		var tmp;
-		/*link*/
+		
+		/*maybe open a new tag items list*/
+		if( !ptr.break && line.reg(/^(\t+){1,}\*(.*)$/) ){
+			ptr.break = true;
+			ptr.stack = [line];
+		/*maybe open a new tag code*/
+		}else if( ( tmp = line.reg( /^\\(\w+)$/ ) ) ){
+			ptr.break = true;
+			ptr.stack = [];
+			ptr.code  = tmp[1];
+		/* open new a new tag table*/
+		}else if( !ptr.break && line.reg( /^\|(.*)\|$/ ) ){
+			ptr.break = true;
+			ptr.stack = [line];
+			ptr.code  = 2;
+		
+		/*end table*/
+		}else if( ptr.break && !line.reg( /^\|(.*)\|$/ ) && ptr.code == 2 ){
+			ptr.break = !1;
+			ptr.code = null;
+		return markdown.view.makeTable( 
+			ptr.stack
+		);
+		
+	* **Alice** *CA* &rarr; 10e &rarr; **Julie** *BNP*	
+		}else if( ptr.break && line.reg( /^\\\\$/ ) && ptr.code ){
+			var tp, k = "fdf";
+			
+			if( ( tp = markdown.replace.code ).indexOf( ptr.code ) > -11 )
+			k="<div class='"+ptr.code+"'><div class='sh'>"+ptr.stack.join("\r\n").replace(/</g,"&lt;").replace(/>/g,'&gt;')+"</div></div>";
+			else if( markdown.replace.jcsript[ ptr.code ] )		
+			k = '<div class="cscript"><div class="sh">'+ asmSpec(  ptr.stack.join("\r"), ptr.code ) +'</div></div>';;
+			
+
+			ptr.break = !1;
+			ptr.code = null
+
+		return ( k  );
+		/*end list*/
+		}else if( ptr.break && !line.reg(/^(\t+){1,}\*(.*)$/) && !ptr.code ){
+				ptr.break = !1;
+		return markdown.view.makeList( 
+			ptr.stack
+		);
+		/*push line into stack*/
+		}else if( ptr.break )
+		ptr.stack.push( line );
+		else if( !ptr.break ){
+
+		/*%var*/
 		if( tmp = line.reg( /^\@([\w\_]+)\s+(.+)$/ ) ){
 		ptr.link[ tmp[1] ] = tmp[2];
 		return "";
-		/*title*/
+		/*title & subtitle*/
 		}else if( tmp = line.reg( /^(\\sub|)(\#+){1,6}(.+)$/ ) ){
 			var t = 
 			markdown.node(  "span", 
@@ -297,54 +411,121 @@ markdown.extend({
 					'id="'+btoa(tmp[2])+'" class="'+(tmp[1] ? "sub" :"")+'part tt'+tmp[2].length+'"'  
 			);
 		return tmp[1].length == 0 ? 
-		'<a href="#'+btoa(tmp[3])+'">'+t+'</a>' : t;
+		'<a href="#'+btoa(tmp[3])+'" id="'+btoa(tmp[2])+'">'+t+'</a>' : t;
 		
 		/*
-		# prototype function
-		*/	
-		}else if( tmp = line.reg( /^\\prototype/ ) ){
-		return markdown.makeproto( line.replace(/\\prototype/,"") );
-		}else if( tmp = line.reg( /^\\hexdump/ ) ){ 
-		return markdown.makeHexdump( line.replace(/^\\hexdump/,"") );
-		/*
-		# css #md .class{ ... }
-		# class> text
+		 moduleLoad
 		*/
-		}else if( tmp = line.reg( /^(\w+)\>(.*)$/ ) )
+		}else if( tmp = line.reg( /^\\(\w+ )(.+)$/ ) ){
+		return markdown.module[ "m"+tmp[1].trim( ) ] ? markdown.module[ "m"+tmp[1].trim( ) ](
+				line.replace( tmp[1], "" )
+			) : "";
+		/*
+		 pointer to markdown.reple.box
+		 class> text
+		*/
+		}else if( tmp = line.reg( /^(\w+)\>(.*)$/ ) ){
 		return markdown.node( "div", this.parseGlobalText( 
 			ptr, markdown.parseLine( ptr, tmp[2] )
-		), 'class="'+tmp[1]+'"' );
-		/*basic text*/
-		else if( line.length > 0 )
+		), 'class="'+( markdown.replace.box.indexOf( tmp[1] ) > -1 ? tmp[1] : "" )+'"' );
+
+		/*basic some text*/
+		}else if( line.length > 0 )
 		return markdown.node( "p", this.parseGlobalText( 
 			ptr, line 
 		));;
 	
+	}
+
 	return "";
 	},
-	/*Private*/
-	makeproto:function( line ){
-		var tmp,t, r, u = "", i = 0;
-		if( tmp = new String( line.replace(/\\prototype/, "" ) ).reg( /(\s+|)([\w _ ]+|)\s+([\w\_\.]+)(\(|\{)(.+)(\)|\})([\w \,\;\*]+|)/ ) ){
-			
-			r = this.parseBBc( {},
-				'<ul class="proto"><li>[c:'+tmp[2]+'](#000080)&nbsp;&nbsp;&nbsp;&nbsp;[c:'+tmp[3]+'](#494949) '+
-				tmp[4]+'</li>__RET__ <li>'+tmp[6]+'[c:'+tmp[7]+'](#000080)</li></ul>'
-			);
-			tmp = tmp[5].split(",");
-			for(; i < tmp.length; i++ ){
+	
+});
 
-				if( t = tmp[i].reg(/(.+)\s+(.+)/) )
-				u += this.parseBBc( {},
-				'<li style="margin-left:100px;">[c:'+t[1]+'](#d2d200)&nbsp;&nbsp;&nbsp;&nbsp;[c:'+t[2]+'](#494949)'
-				);;
-				
-			}
-			r= r.replace( "__RET__", u.replace(/(\255)/g,"<span style='color:#000080 !important'>\255</span>") );
-		}
-		tmp=t=u=i=null;
-	return ( r || "" );
+markdown.init = function( opts ){
+	this.reload( opts );
+return this;
+};
+markdown.extend( markdown.init.prototype,{
+
+	reload:function( opts ){
+		/**/
+		this.link = {};
+		this.opts = opts;
+		this.break = !1;
+		this.stack = [];
+		this.code  = null;
+		this.i     = 0;
+
+	return this;
 	},
+	load:function(  ){
+		var txt,__ = "",
+		 slf = this, tmp;
+
+		if( ( txt = markdown.explode( ( this.opts.txt || this.opts.edit.val( ) ) ) ).length > 0 )
+		txt.map( function( line, i ){
+			
+			/*
+			 i've prefer to apply this function here,
+			 rather to apply it  above,  that's allow
+			 to parse each line by slice, for avoid any
+			 parsing error, or analyzing of oversize string.
+			*/
+			line = markdown.parser.replace( line );
+
+			/*
+			 replace special each characters
+			*/
+			__+= markdown.parser.replace( 
+				( tmp = markdown.parseLine( slf, line ) ).length > 0 && !slf.break ?
+				"<section class='select' data-module='"+btoa( this.i++ )+"'>"+tmp+"</section>" : "",
+				 1 
+			);
+			
+		});;
+
+		/* output */
+		this.opts.input.val( 
+			__
+		);
+	// return alls nodes jno2
+	return jno2("#md").child("section.select");;
+	},
+	
+	parseOneLine:function( lineno, id ){
+	var tmp = markdown.parser.replace( typeof lineo == "number" && tmp[ lineo ] ? tmp[ lineo ] : lineo );
+
+	return markdown.parser.replace( 
+		( tmp = markdown.parseLine( this, tmp ) ).length > 0 && !this.break ?
+		tmp : "",
+		1
+	);
+	},
+	parseGlobalText:function( __text__ ){
+	return markdown.parseGlobalText(
+		this, __text__
+	);
+	},
+	parseTextElements:function( __text__ ){
+	return markdown.parseTextElements(
+		this, __text__
+	);
+	},
+	parseBBc:function( __text__ ){
+	return markdown.parseBBc(
+		this, __text__
+	);
+	},
+	parseVar:function( __text__ ){
+	return markdown.parseVar(
+		this, __text__
+	);
+	},
+	
+});
+
+markdown.extend( ( markdown.view = {} ), {
 	makeList:function( elts, i, j ){
 		var r,t = "", o,tmp;
 		
@@ -364,7 +545,7 @@ markdown.extend({
 			}
 
 			t += o[1].length > j ? 
-			markdown.makeList( elts, i, j+1 ) :
+			markdown.view.makeList( elts, i, j+1 ) :
 			"<li>"+markdown.parseGlobalText( {}, o[2] )+"</li>";
 					
 		i.i++;
@@ -373,7 +554,6 @@ markdown.extend({
 		o=tmpi=j=null;
 	return ( r.replace( "__RET__", t || "" )  || "" );
 	},
-
 	makeTable:function( elts ){
 		var r,a,z,t = "",tmp;
 		
@@ -398,10 +578,47 @@ markdown.extend({
 			});
 			t+="</tr>";
 		});
-	
 	return ( r.replace( "__INNER__", t || "" ) || "" );
 	},
-	makeHexdump:function( frame, addr ){
+}); 
+/*
+ MODULE
+ Set a new module 
+ extend markdown.module.yourModule = function( elts ){
+	eltsText == raw text no parsing into markdown
+	\code Elements
+ };
+ markdown.replae.module.push( "yourModule" );
+
+
+*/
+function _ascii( byte ){
+return byte === 0 || byte == 0x0d || byte == 0x0a ? "." : String.fromCharCode( byte );
+}
+markdown.extend( ( markdown.module = {} ), { 
+
+	mprototype:function( line ){
+	var tmp,t, r, u = "", i = 0;
+	if( tmp = line.reg( /(\s+|)([\w _ ]+|)\s+([\w\_\.]+)(\(|\{)(.+)(\)|\})([\w \,\;\*]+|)/ ) ){
+			
+		r = markdown.parseBBc( {},
+			'<ul class="proto"><li>[c:'+tmp[2]+'](#000080)&nbsp;&nbsp;&nbsp;&nbsp;[c:'+tmp[3]+'](#494949) '+
+			tmp[4]+'</li>__RET__ <li>'+tmp[6]+'[c:'+tmp[7]+'](#000080)</li></ul>'
+		);
+		tmp = tmp[5].split(",");
+		for(; i < tmp.length; i++ ){
+		if( t = tmp[i].reg(/(.+)\s+(.+)/) )
+			u += markdown.parseBBc( {},
+			'<li style="margin-left:100px;">[c:'+t[1]+'](#d2d200)&nbsp;&nbsp;&nbsp;&nbsp;[c:'+t[2]+'](#494949)'
+			);;
+				
+		}
+		r= r.replace( "__RET__", u.replace(/(\255)/g,"<span style='color:#000080 !important'>\255</span>") );
+	}
+	tmp=t=u=i=null;
+	return ( r || "" );
+	},
+	mhexdump:function( frame, addr ){
 		var i = 0,r,j;
 
 		r = "<table id='hexdump'><tr><td class='addr'><tt>"+
@@ -430,112 +647,59 @@ markdown.extend({
 		}
 	return r+"</tr></table>";
 	},
+
 });
 
-function _ascii( byte ){
-return byte === 0 || byte == 0x0d || byte == 0x0a ? "." : String.fromCharCode( byte );
-}
+/*
+ **
+# callback to markdown.replace.calback
+ ***
+*/
+markdown.replace.bbc.callback.img = function( ){
+	var kk,s = "";
 
-markdown.init = function( opts ){
-	this.reload( opts );
-return this;
+	// attribut
+	if( this[5] && (this[5]=this[5].split(",")) )	
+	kk = this[5][0].reg(/(\s\d+\s|\d+|)\*(\s\d+\s|\d+|)/);
+	
+return  '<div class="pictnode"><div></div>'+ /*wrapper*/
+	'<img src="'+this[3]+'" '+ 	    /*node*/
+	' onload="jmd.img( this, '+( kk && kk[1].length > 0 ? "\'"+kk[1].trim()+"\'" : null )+','+
+	(  kk && kk[2].length > 0 ? "\'"+kk[2].trim()+"\'" : null )+', '+( this[5] && this[5][0] ? 1 : 0 )+' )" >'+
+	'</div>';
+}; 
+markdown.replace.bbc.callback.vscanf = function( ){
+	var argv = [];
+	jno2.each( ( [this[3]].concat( this[5].split(",") ) )  , function( v, i ){
+			argv[ i ] = /\d+/.test( v ) && !isNaN( parseInt( v ) ) ?
+			parseFloat( v ) : v;
+	});
+return jno2.vscanf.apply(
+		null,
+		argv
+	);
+}; 
+markdown.replace.bbc.callback.atob = markdown.replace.bbc.callback.btoa = function( ){
+return markdown.span( 
+	"",
+	window[ this[1] == "atob" ? "atob" : "btoa" ]( this[ 3 ] )
+	);
+}; 			
+/*
+# end
+*/
+/* Attach jsript pointer to markdown*/
+markdown.jcscript = null;
+markdown.img = function( _, w, h, a ){
+	
+	jno2( _ ).getParent( ).css({ 
+		width:( w || _.width | "auto" ),
+		height:( h || _.height || "auto" ),
+		margin:( a ? "auto" : "" ), display:"block" 
+	});
+	jno2( _ ).css({width:"100%",height:"100%"});
 };
-markdown.extend( markdown.init.prototype,{
 
-	reload:function( opts ){
-
-		this.link = {};
-		this.opts = opts;
-
-	return this.load( );
-	},
-	load:function(  ){
-		var txt,__ = k ="", d = { break:0, l:[], n:null },
-		 slf = this, tmp, i = 0;
-
-		if( ( txt = markdown.explode(  this.opts.edit.val( ) ) ).length > 0 )
-		txt.map( function( line, i ){
-			
-			
-			line = markdown.parser.replace( line );
-
-			/* list*/
-			if( !d.break && line.reg(/^(\t+){1,}\*(.*)$/) ){
-				d.break = true;
-				d.l = [line];
-			/*code*/
-			}else if( ( tmp = line.reg( /^\\(\w+)$/ ) ) ){
-				d.n = tmp[1];
-				d.break = true;
-				d.l = [];
-			
-			/*table*/
-			}else if( !d.break && line.reg( /^\|(.*)\|$/ ) ){
-				d.break = true;
-				d.l = [line];
-				d.n = "t";
-
-			/*end table*/
-			}else if( d.break && !line.reg( /^\|(.*)\|$/ ) && d.n == "t" ){
-
-				k=markdown.makeTable( d.l );
-				d.break = !1;
-				d.n = null
-			/*end code*/
-			}else if( d.break && line.reg( /^\\\\$/ ) && d.n ){
-
-				
-				k="<div class='"+d.n+"'><div class='sh'>"+d.l.join("\r\n").replace(/</g,"&lt;").replace(/>/g,'&gt;')+"</div></div>";
-				d.break = !1;
-				d.n = null
-
-			/*end list*/
-			}else if( d.break && !line.reg(/^(\t+){1,}\*(.*)$/) && !d.n ){
-				d.break = !1;
-				k=markdown.makeList( d.l );
-			/*stack line*/	
-			}else if( d.break  )
-			d.l.push( line );
-			/*simple line*/
-			else if( !d.break )
-			k= ( tmp = markdown.parseLine( slf, line ) ).length > 0 ?
-			"<section class='select' data-module='"+btoa( i++ )+"'>"+tmp+"</section>" : "";;
-			
-			__+= markdown.parser.replace( k, 1 );
-			
-		});;
-
-		/* output */
-		this.opts.input.val( 
-			__
-		);
-
-	return this;
-	},
-
-	parseGlobalText:function( __text__ ){
-	return markdown.parseGlobalText(
-		this, __text__
-	);
-	},
-	parseTextElements:function( __text__ ){
-	return markdown.parseTextElements(
-		this, __text__
-	);
-	},
-	parseBBc:function( __text__ ){
-	return markdown.parseBBc(
-		this, __text__
-	);
-	},
-	parseVar:function( __text__ ){
-	return markdown.parseVar(
-		this, __text__
-	);
-	},
-});
-			
 window.jmd = markdown;
 
 })( window, jno2 );
-
