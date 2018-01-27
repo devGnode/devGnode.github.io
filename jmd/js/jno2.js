@@ -1032,12 +1032,13 @@ jno2.vscanf = function( ){
 return value;
 };
 
-String.prototype.reg = function( parse ){
-return parse.exec( this.valueOf( )  );
-};
 
 jno2.regexp = function( reg, value, callback, hptr ){
 	var i = 1, k, tmp;
+	
+	if( typeof value !== "string" )
+	return value;;
+
 	try{
 		while( ( tmp = reg.exec( value ) )  && i < 1000 ){
 
@@ -1054,6 +1055,11 @@ jno2.regexp = function( reg, value, callback, hptr ){
 	console.log(e);
 	};
 return value;
+};
+
+String.prototype.reg = function( parse, callback, ptr ){
+return typeof callback === "function" ? jno2.regexp( parse, this.valueOf( ), callback, ptr ) :
+	parse.exec( this.valueOf( )  );
 };
 
 slf.jno2 = jno2;
