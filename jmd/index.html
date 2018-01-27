@@ -33,9 +33,8 @@ L' **API $jmd.js$** et un ptit module en javascript qui permet d'émuler rapidem
 		* css
 			* mddesign.css
 		* js
-			* **jno2.js**
-			* jmd-v1.0.js
-			* jcscript-v0.js
+			* jmd.js
+			* jno2.js
 		* Emojis
 			* \*.\* fichier  png
 		* ttf
@@ -90,8 +89,8 @@ box>\[ **baliseName** \: **Argument A** \]( **Argument B** )
 |: tt |:  text :|: [c:NULL](red) :| [tt:Some text] |
 |: v |:  text :|: [c:NULL](red) :| [v:Some text] |
 |: code |:  text :|: [c:NULL](red) :| [code:Some text] |
-|: code |:  text :|: [c:NULL](red) :| [code:Some text] |
-|: atob |:  text64 :|: [c:NULL](red) :| [atob:U29tZSB0ZXh0] |
+|: time |:  \\%h\\:\\%m\\:\\%s :|: [c:NULL](red) :| current time : [time:\%h\:\%m\:\%s] |
+|: atob |:  text64 :|: [c:NULL](red) :| [atob:[btoa:Some Text]] |
 |: btoa |:  text :|: [c:NULL](red) :| [btoa:Some text] |
 |: vscanf |:  parser :|: argument,argument,... :| [vscanf:char **'%c'** hex 0x%h bin %b ]( 97, 255, 15 ) |
 
@@ -223,8 +222,6 @@ box> \prototype Struct Name{ NUMBER x , String name , Pointer \* d } \* foo;
 add balise **box>** and prototype
 silver>\prototype void Name( NUMBER adfd , String bddfd , Pointer * d )
 
-lool [btoa:comment sa vas] et [code:[atob:Y29tbWVudCBzYSB2YXM8L3NwYW4+]]
-
 \sub### Hexdump
 
 silver> \hexdump base64( votre frame ou text ) 
@@ -233,7 +230,10 @@ silver> \hexdump base64( votre frame ou text )
 \hexdump azasssqsqsqzazazkmlkzmkamkzmkamkzmakzmkmakzmkzak 
 
 
+	
+# Devgnode API javascript :fr:
 
+La plupart de ces **API** existe déjà, est leur developpement est bien plus aboutis, mais cela sont *homemade*. On est jamais mieux servis que par soit même , est j'aime réécrire la roue.
 
 
 </textarea>
