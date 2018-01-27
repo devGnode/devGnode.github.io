@@ -223,7 +223,7 @@ markdown.extend({
 
 		toff++;
 		}
-	console.log( r,"--8888--" );
+	
 	return r.length > 0 ? r :  data;
 	},
 	/*
@@ -232,17 +232,17 @@ markdown.extend({
 	*/
 	resolveEntireTag:function( data, off, b ){
 		var tmp,n = 0,
-		r = "", max = 0,rtmp ="";
+		r = "", max = 0,rtmp ="", k = off;
 		while( tmp = data[ off ] ){
 			
 			if( tmp === b[0] )
-			n++, rtmp="",max++;
+			n++, rtmp=off,max++;
 
 			else if( tmp === b[1] )
 			--n;
 			
 			r+= tmp; 
-			rtmp += n > 1 ? tmp : "";
+			//rtmp += n > 1 ? tmp : "";
  
 			if( tmp == b[1] && n == 0 || n == -1 ){
 			// try to remove this part or improve it him
@@ -252,15 +252,18 @@ markdown.extend({
 			break;
 			}
 		off++;
-		} console.log( rtmp, " ------------ " );
-	return  r;max > 1 ? this.findSub( r, 0, b ) : r;
+		} 
+	// because if you superpose of multiples tags together
+	// this is can going to drop into an error recursive 
+	// call of a function ??
+	return rtmp - k > 0 ? this.resolveEntireTag( data, rtmp, "[]" ) : r; // max > 1 ? this.findSub( r, 0, b ) : r;
 	},
 	
 	parseBBc:function( slf, __text__ ){ 
 	var k;
 	/*
 		 **
-	         /\
+	       	 /\
 		/  \
 	       /.   \
 	      /.     \
@@ -300,7 +303,7 @@ markdown.extend({
 		// new parsor [xx: yy [xx:yy](15)]
 		//            |__________________|
 		// 
-	//console.log( markdown.findSub( data, this.index, "[]" ) );
+		//console.log( markdown.findSub( data, this.index, "[]" ) );
 		if( (k=markdown.resolveEntireTag( data, this.index, "[]" ).reg(/^\[(\w+)\:(.+||)\](\((.*?)\)|)$/) ) || (k=[,,,,]) );;
 
 		this[0] = k[0];
