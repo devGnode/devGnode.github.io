@@ -23,7 +23,7 @@
 
 L' **API $jmd.js$** et un ptit module en javascript qui permet d'émuler rapidement diverse balise en **Markdown** ou en **Mini BBcode**. Pour sont bon fonctionement **API ** à bessoin de la dépendance suivante :
 
-	* **jno2.js** → [a: Here](https://github.com/devGnode/jno2) ( [c::warning: **gnode** is decprecated](red) ).
+	* **jno2.js** → [a: Github directory](https://github.com/devGnode/jno2) ( [size:[c::warning: **gnode** is decprecated](red)](12) ).
 	* ** mddesign.css **
 
 \sub## Aborescence  
@@ -40,7 +40,14 @@ L' **API $jmd.js$** et un ptit module en javascript qui permet d'émuler rapidem
 		* ttf
 			* \*.\* fichier ttf
 
-:warning: Pour le moment sont utilisation reste strictement réverser pour une utilisation admin, c'est à dire auccun user ne doit pouvoirs utiliser cette **API** qui n'est pas protèger contre les failles **d'Injection XSS**.
+:warning: [c:Attention](red) de bien include les librairie suivante **jno2.js** dans votre projet.
+
+\cpp
+
+<script type="text/avascript" src="./js/jno2.js"></script>
+
+
+\\
   
 ##:one: Text Area
 
@@ -68,9 +75,10 @@ box> #Un title grande taille
 |: ##### |  h5 |
 |: ###### |  h6 |
 
+Pour un titre juste souligner \\sub + ** \[ selector # \] **
 Pour afficher certains caractères dans du text, il faudrat y placer un slash  ** \ ** devant. Les cractères concerner sont 
  
-box> \* \$ \[ \] \% \: 
+box> ** \* \$ \[ \] \% \: \| \( \) \& \% \" \' **
 
 ##:two: Mini BBcode
 
@@ -222,19 +230,14 @@ box> \prototype Struct Name{ NUMBER x , String name , Pointer \* d } \* foo;
 add balise **box>** and prototype
 silver>\prototype void Name( NUMBER adfd , String bddfd , Pointer * d )
 
+lool [btoa:comment sa vas] et [code:[atob:Y29tbWVudCBzYSB2YXM8L3NwYW4+]]
+
 \sub### Hexdump
 
 silver> \hexdump base64( votre frame ou text ) 
 
 
 \hexdump azasssqsqsqzazazkmlkzmkamkzmkamkzmakzmkmakzmkzak 
-
-
-	
-# Devgnode API javascript :fr:
-
-La plupart de ces **API** existe déjà, est leur developpement est bien plus aboutis, mais cela sont *homemade*. On est jamais mieux servis que par soit même , est j'aime réécrire la roue.
-
 
 </textarea>
 	<button onclick="test(this);" >Save</button>
