@@ -194,9 +194,9 @@ markdown.extend({
 	/* parse :emojis:*/
 	parseEmojis:function( slf, __text__ ){
 		var a,b,c,t;
-	return jno2.regexp( /\:([\w_\+]+)\:/, __text__, function( slf ){
-		return markdown.span( 'emojis" style="background-image:url(\'./emojis/'+this[1]+'.png\');', "" );
-		}, slf );
+	return jno2.regexp( /\:([\w_\+\-]+)\:/, __text__, function(  ){
+		return markdown.span( 'emojis" style="background-image:url(\'./'+(slf.emojis?slf.emojis:'emojis')+'/'+this[1]+'.png\');', "" );
+		} );
 	},
 
 	/*
@@ -464,7 +464,10 @@ markdown.extend( markdown.init.prototype,{
 		this.stack = [];
 		this.code  = null;
 		this.i     = 0;
-
+		
+		// directory emojis
+		this.emojis  = opts.emojis || null;
+		
 	return this;
 	},
 	load:function(  ){
