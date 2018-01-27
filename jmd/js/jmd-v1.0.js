@@ -23,7 +23,7 @@
 var markdown = function( opts ){
 return new markdown.init( opts );
 };
-
+var ii=0;
 markdown.extend = jno2.extend;
 markdown.extend({
 	
@@ -201,32 +201,61 @@ markdown.extend({
 
 	/*
 	* <test0<test0r152>testo12589>
+	* |____ok________ok__________| 
+	*/
+	findSub:function( data, off, b ){
+		var tmp,n = 0,
+		r = "", toff = off;
+		while( tmp = data[ toff ] ){
+			
+			if( tmp === b[0] && toff > off )
+			n++,r="";
+
+			else if( tmp === b[1] ){
+				r+= tmp;
+				data[toff+1] && data[toff+1] === "(" ?
+				r+= markdown.resolveEntireTag( data, toff+1, "()" )  : void 0;
+				break;
+			}
+			
+			if( n > 0 )
+			r+= tmp;;
+
+		toff++;
+		}
+	console.log( r,"--8888--" );
+	return r.length > 0 ? r :  data;
+	},
+	/*
+	* <test0<test0r152>testo12589>
 	* |_____X_________X__________| OK
 	*/
-	resolveEntireBalise:function( data, off, b ){
+	resolveEntireTag:function( data, off, b ){
 		var tmp,n = 0,
-		r = "";
+		r = "", max = 0,rtmp ="";
 		while( tmp = data[ off ] ){
 			
 			if( tmp === b[0] )
-			n++;
+			n++, rtmp="",max++;
 
 			else if( tmp === b[1] )
 			--n;
 			
-			r+= tmp;;
-
+			r+= tmp; 
+			rtmp += n > 1 ? tmp : "";
+ 
 			if( tmp == b[1] && n == 0 || n == -1 ){
 			// try to remove this part or improve it him
 			// check if this balise as supp arguments
 			data[off+1] && data[off+1] === "(" ?
-			r+= markdown.resolveEntireBalise( data, off+1, "()" )  :void 0;			
+			r+= markdown.resolveEntireTag( data, off+1, "()" )  :void 0;			
 			break;
 			}
 		off++;
-		}
-	return r;
+		} console.log( rtmp, " ------------ " );
+	return  r;max > 1 ? this.findSub( r, 0, b ) : r;
 	},
+	
 	parseBBc:function( slf, __text__ ){ 
 	var k;
 	/*
@@ -271,9 +300,9 @@ markdown.extend({
 		// new parsor [xx: yy [xx:yy](15)]
 		//            |__________________|
 		// 
-		k =  markdown.resolveEntireBalise( data, this.index, "[]" );
-		k = k.reg(/^\[(\w+)\:(.+||)\](\((.*?)\)|)$/);
-	
+	//console.log( markdown.findSub( data, this.index, "[]" ) );
+		if( (k=markdown.resolveEntireTag( data, this.index, "[]" ).reg(/^\[(\w+)\:(.+||)\](\((.*?)\)|)$/) ) || (k=[,,,,]) );;
+
 		this[0] = k[0];
 		this[1] = k[1];
 		this[3] = k[2];
@@ -302,6 +331,7 @@ markdown.extend({
 		);
 		else if( typeof ( k  = markdown.replace.bbc.callback[ this[1] ] ) == "function" ){
 			var _t;
+			//this[3].replace(/(\<(.+?)\>)/g,"");
 		return ( _t = k.call( this ) ) && _t.length > 0 ? _t : "";
 		}else ;
 		return "";
@@ -378,6 +408,7 @@ markdown.extend({
 			ptr.break = !1;
 			ptr.code = null;
 		return markdown.view.makeTable( 
+			ptr,
 			ptr.stack
 		);
 		
@@ -400,6 +431,7 @@ markdown.extend({
 		}else if( ptr.break && !line.reg(/^(\t+){1,}\*(.*)$/) && !ptr.code ){
 				ptr.break = !1;
 		return markdown.view.makeList( 
+			ptr,
 			ptr.stack
 		);
 		/*push line into stack*/
@@ -424,9 +456,9 @@ markdown.extend({
 		/*
 		 moduleLoad
 		*/
-		}else if( tmp = line.reg( /^\\(\w+ )(.+)$/ ) ){
+		}else if( tmp = line.reg( /^\\(\w+ )(.+)$/ ) ){ 
 		return markdown.module[ "m"+tmp[1].trim( ) ] ? markdown.module[ "m"+tmp[1].trim( ) ](
-				line.replace( tmp[1], "" )
+				line.slice( tmp[1].length+1, line.length )
 			) : "";
 		/*
 		 pointer to markdown.reple.box
@@ -464,10 +496,8 @@ markdown.extend( markdown.init.prototype,{
 		this.stack = [];
 		this.code  = null;
 		this.i     = 0;
-		
 		// directory emojis
 		this.emojis  = opts.emojis || null;
-		
 	return this;
 	},
 	load:function(  ){
@@ -537,7 +567,7 @@ markdown.extend( markdown.init.prototype,{
 });
 
 markdown.extend( ( markdown.view = {} ), {
-	makeList:function( elts, i, j ){
+	makeList:function( ptr, elts, i, j ){
 		var r,t = "", o,tmp;
 		
 		if( !i )i={i:0};;
@@ -556,8 +586,8 @@ markdown.extend( ( markdown.view = {} ), {
 			}
 
 			t += o[1].length > j ? 
-			markdown.view.makeList( elts, i, j+1 ) :
-			"<li>"+markdown.parseGlobalText( {}, o[2] )+"</li>";
+			markdown.view.makeList( ptr, elts, i, j+1 ) :
+			"<li>"+markdown.parseGlobalText( ptr, o[2] )+"</li>";
 					
 		i.i++;
 		}
@@ -565,7 +595,7 @@ markdown.extend( ( markdown.view = {} ), {
 		o=tmpi=j=null;
 	return ( r.replace( "__RET__", t || "" )  || "" );
 	},
-	makeTable:function( elts ){
+	makeTable:function( ptr, elts ){
 		var r,a,z,t = "",tmp;
 		
 		r = markdown.node( "table", "__INNER__" );
@@ -584,7 +614,7 @@ markdown.extend( ( markdown.view = {} ), {
 					vl = "**"+vl+"**";;
 				
 					t+= "<td style='text-align:"+a+"' class='"+( i == 0 ? "peert" : !(i%2) && i != 0 ? "peertd" : "" )+"'>"+
-					markdown.parseGlobalText( {}, vl )+"</td>";
+					markdown.parseGlobalText( ptr, vl )+"</td>";
 				}
 			});
 			t+="</tr>";
@@ -631,6 +661,8 @@ markdown.extend( ( markdown.module = {} ), {
 	},
 	mhexdump:function( frame, addr ){
 		var i = 0,r,j;
+		//console.log( frame );
+		try{ frame = atob( frame ); }catch(e){ frame = "" };
 
 		r = "<table id='hexdump'><tr><td class='addr'><tt>"+
 		base.dec2hext( i, 2 ) +"</tt></td>";
@@ -689,11 +721,11 @@ return jno2.vscanf.apply(
 		null,
 		argv
 	);
-}; 
+}; var i = 0;
 markdown.replace.bbc.callback.atob = markdown.replace.bbc.callback.btoa = function( ){
 return markdown.span( 
 	"",
-	window[ this[1] == "atob" ? "atob" : "btoa" ]( this[ 3 ] )
+	window[ this[1] == "atob" ? "atob" : "btoa" ]( this[ 3 ].replace(/(\<.+?\>)/g,"") )
 	);
 }; 			
 /*
